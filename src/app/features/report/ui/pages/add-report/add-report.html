@@ -1,1 +1,21 @@
-<p>add-report works!</p>
+<div>
+<button type="button" (click)="cameraInput.click()">
+  Tomar foto
+</button>
+
+<input
+  #cameraInput
+  type="file"
+  accept="image/*"
+  capture="environment"
+  hidden
+  (change)="onPhotoSelected($event)"
+/>
+
+@if (photoUrl) {
+  <img
+    [src]="photoUrl"
+    alt="Foto del reporte"
+  />
+}
+</div>
