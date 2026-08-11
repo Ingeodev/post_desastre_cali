@@ -6,16 +6,13 @@ import { ReportStore } from '../../stores/report.store';
   imports: [],
   templateUrl: './add-report.html',
   styleUrl: './add-report.css',
-    providers: [ReportStore],
+  providers: [ReportStore],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AddReport {
-
-  store = inject(ReportStore)
-  
+  store = inject(ReportStore);
 
   photoBlob: Blob | null = null;
-  photoUrl: string | null = null;
 
   onPhotoSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -25,27 +22,16 @@ export class AddReport {
       return;
     }
 
-    // File ya es un Blob, pero puedes conservarlo como Blob
     this.photoBlob = file;
-
-    // Liberar la URL anterior si existía
-    if (this.photoUrl) {
-      URL.revokeObjectURL(this.photoUrl);
-    }
-
-    // Crear URL temporal para mostrar la imagen
-    this.photoUrl = URL.createObjectURL(this.photoBlob);
-
-    // Permitir seleccionar/tomar nuevamente
     input.value = '';
-
-    console.log('Blob:', this.photoBlob);
-    console.log('URL:', this.photoUrl);
   }
 
-  ngOnDestroy(): void {
-    if (this.photoUrl) {
-      URL.revokeObjectURL(this.photoUrl);
+  onAccept(): void {
+    if (!this.photoBlob) {
+      return;
     }
+
+    this.store.savePhoto(this.photoBlob);
+    this.photoBlob = null;
   }
 }
