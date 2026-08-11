@@ -1,6 +1,4 @@
 <div>
-  <button type="button" (click)="cameraInput.click()">Tomar foto</button>
-
   <input
     #cameraInput
     type="file"
@@ -18,3 +16,12 @@
     <img [src]="photo.url" alt="Foto del reporte" />
   }
 </div>
+
+<app-fab
+  icon="pi pi-camera"
+  size="large"
+  severity="primary"
+  position="bottom-end"
+  ariaLabel="Tomar foto"
+  (clicked)="cameraInput.click()"
+/>

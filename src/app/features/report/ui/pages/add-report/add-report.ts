@@ -1,9 +1,10 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { Fab } from '../../../../../shared/components/fab/fab';
 import { ReportStore } from '../../stores/report.store';
 
 @Component({
   selector: 'app-add-report',
-  imports: [],
+  imports: [Fab],
   templateUrl: './add-report.html',
   styleUrl: './add-report.css',
   providers: [ReportStore],
