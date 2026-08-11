@@ -1,10 +1,11 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { MapForm } from '../../components/map-form/map-form';
 import { Fab } from '../../../../../shared/components/fab/fab';
 import { ReportStore } from '../../stores/report.store';
 
 @Component({
   selector: 'app-add-report',
-  imports: [Fab],
+  imports: [Fab, MapForm],
   templateUrl: './add-report.html',
   styleUrl: './add-report.css',
   providers: [ReportStore],
@@ -25,14 +26,5 @@ export class AddReport {
 
     this.photoBlob = file;
     input.value = '';
-  }
-
-  onAccept(): void {
-    if (!this.photoBlob) {
-      return;
-    }
-
-    this.store.savePhoto(this.photoBlob);
-    this.photoBlob = null;
   }
 }

@@ -48,7 +48,7 @@ export class Fab {
 
   readonly positionStyle = computed(() => ({
     position: 'absolute',
-    zIndex: '50',
+    zIndex: '1100',
     ...POSITION_STYLES[this.position()],
   }));
 }

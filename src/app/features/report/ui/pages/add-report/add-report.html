@@ -1,4 +1,4 @@
-<div>
+<div class="h-full">
   <input
     #cameraInput
     type="file"
@@ -8,13 +8,7 @@
     (change)="onPhotoSelected($event)"
   />
 
-  @if (photoBlob) {
-    <button type="button" (click)="onAccept()">Aceptar</button>
-  }
-
-  @for (photo of store.photos(); track photo.id) {
-    <img [src]="photo.url" alt="Foto del reporte" />
-  }
+  <app-map-form [location]="store.location()" />
 </div>
 
 <app-fab
