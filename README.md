@@ -12,6 +12,25 @@ ng serve
 
 Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
 
+## Debugging from your phone
+
+Serve the app over HTTPS so the phone browser treats it as a secure context (required for camera, geolocation, and PWA features):
+
+1. Start the dev server bound to all interfaces:
+
+   ```bash
+   pnpm start:global
+   ```
+
+2. Expose it through a quick HTTPS tunnel (no account needed):
+
+   ```bash
+   brew install cloudflared
+   cloudflared tunnel --url http://localhost:4200
+   ```
+
+3. Open the generated `https://...trycloudflare.com` URL on your phone.
+
 ## Code scaffolding
 
 Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
