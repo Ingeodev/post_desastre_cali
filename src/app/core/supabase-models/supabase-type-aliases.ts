@@ -31,6 +31,11 @@ export type DamageCategories = Tables<'damage_categories'>;
 export type DamageCategoriesInsert = TablesInsert<'damage_categories'>;
 export type DamageCategoriesUpdate = TablesUpdate<'damage_categories'>;
 
+// --- DamageInspectionOccupancy ---
+export type DamageInspectionOccupancy = Tables<'damage_inspection_occupancy'>;
+export type DamageInspectionOccupancyInsert = TablesInsert<'damage_inspection_occupancy'>;
+export type DamageInspectionOccupancyUpdate = TablesUpdate<'damage_inspection_occupancy'>;
+
 // --- DamageInspectionPhotos ---
 export type DamageInspectionPhotos = Tables<'damage_inspection_photos'>;
 export type DamageInspectionPhotosInsert = TablesInsert<'damage_inspection_photos'>;

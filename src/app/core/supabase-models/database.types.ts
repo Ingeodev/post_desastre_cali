@@ -53,6 +53,38 @@ export type Database = {
         }
         Relationships: []
       }
+      damage_inspection_occupancy: {
+        Row: {
+          created_at: string
+          estimated_residents: number | null
+          has_trapped_people: boolean | null
+          inspection_id: string
+          is_currently_occupied: boolean | null
+        }
+        Insert: {
+          created_at?: string
+          estimated_residents?: number | null
+          has_trapped_people?: boolean | null
+          inspection_id: string
+          is_currently_occupied?: boolean | null
+        }
+        Update: {
+          created_at?: string
+          estimated_residents?: number | null
+          has_trapped_people?: boolean | null
+          inspection_id?: string
+          is_currently_occupied?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "damage_inspection_occupancy_inspection_id_fkey"
+            columns: ["inspection_id"]
+            isOneToOne: true
+            referencedRelation: "damage_inspections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       damage_inspection_photos: {
         Row: {
           id: string

@@ -3,13 +3,14 @@ import { Observable, of } from 'rxjs';
 import { ConstructionTypes } from '../../../../core/supabase-models/supabase-type-aliases';
 
 const DATA: ConstructionTypes[] = [
-  { id: 0, code: 'D0', label: 'Sin daño' },
-  { id: 1, code: 'D1', label: 'Daño leve' },
-  { id: 2, code: 'D2', label: 'Daño moderado' },
-  { id: 3, code: 'D3', label: 'Daño severo' },
-  { id: 4, code: 'D4', label: 'Peligro de colapso' },
-  { id: 5, code: 'D5', label: 'Colapso' },
-];
+  { "id": 1, "code": "MAMP_NR", "label": "Ladrillo o bloque sin refuerzo" }, 
+  { "id": 2, "code": "MAMP_REF", "label": "Ladrillo o bloque con refuerzo (columnas y vigas de amarre)" }, 
+  { "id": 3, "code": "CONC_REF", "label": "Concreto reforzado (columnas y vigas de concreto)" }, 
+  { "id": 4, "code": "ADOBE", "label": "Adobe o tapia pisada (barro/tierra)" }, 
+  { "id": 5, "code": "MADERA", "label": "Madera" }, 
+  { "id": 6, "code": "INFORMAL", "label": "Construcción informal, sin planos ni diseño técnico" }, 
+  { "id": 7, "code": "OTRO", "label": "Otro tipo de construcción" }, 
+  { "id": 8, "code": "MURO_CONC", "label": "Muros de concreto (paños de concreto vaciados en sitio, común en conjuntos cerrados)" }];
 
 @Injectable({
   providedIn: 'root',
