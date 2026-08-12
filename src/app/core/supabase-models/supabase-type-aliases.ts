@@ -41,10 +41,20 @@ export type DamageInspections = Tables<'damage_inspections'>;
 export type DamageInspectionsInsert = TablesInsert<'damage_inspections'>;
 export type DamageInspectionsUpdate = TablesUpdate<'damage_inspections'>;
 
+// --- DamagePatterns ---
+export type DamagePatterns = Tables<'damage_patterns'>;
+export type DamagePatternsInsert = TablesInsert<'damage_patterns'>;
+export type DamagePatternsUpdate = TablesUpdate<'damage_patterns'>;
+
 // --- DataSources ---
 export type DataSources = Tables<'data_sources'>;
 export type DataSourcesInsert = TablesInsert<'data_sources'>;
 export type DataSourcesUpdate = TablesUpdate<'data_sources'>;
+
+// --- InspectionDamagePatterns ---
+export type InspectionDamagePatterns = Tables<'inspection_damage_patterns'>;
+export type InspectionDamagePatternsInsert = TablesInsert<'inspection_damage_patterns'>;
+export type InspectionDamagePatternsUpdate = TablesUpdate<'inspection_damage_patterns'>;
 
 // --- SeismicEvents ---
 export type SeismicEvents = Tables<'seismic_events'>;

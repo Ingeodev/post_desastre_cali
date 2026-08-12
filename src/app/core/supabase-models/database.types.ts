@@ -174,6 +174,33 @@ export type Database = {
           },
         ]
       }
+      damage_patterns: {
+        Row: {
+          active: boolean | null
+          code: string
+          description: string | null
+          id: number
+          label: string
+          reference_image_url: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          code: string
+          description?: string | null
+          id: number
+          label: string
+          reference_image_url?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          code?: string
+          description?: string | null
+          id?: number
+          label?: string
+          reference_image_url?: string | null
+        }
+        Relationships: []
+      }
       data_sources: {
         Row: {
           code: string
@@ -192,6 +219,36 @@ export type Database = {
         }
         Relationships: []
       }
+      inspection_damage_patterns: {
+        Row: {
+          inspection_id: string
+          pattern_id: number
+        }
+        Insert: {
+          inspection_id: string
+          pattern_id: number
+        }
+        Update: {
+          inspection_id?: string
+          pattern_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inspection_damage_patterns_inspection_id_fkey"
+            columns: ["inspection_id"]
+            isOneToOne: false
+            referencedRelation: "damage_inspections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspection_damage_patterns_pattern_id_fkey"
+            columns: ["pattern_id"]
+            isOneToOne: false
+            referencedRelation: "damage_patterns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       seismic_events: {
         Row: {
           created_at: string | null
@@ -200,6 +257,7 @@ export type Database = {
           event_datetime: string
           id: string
           magnitude: number | null
+          name: string
           source: string | null
         }
         Insert: {
@@ -209,6 +267,7 @@ export type Database = {
           event_datetime: string
           id?: string
           magnitude?: number | null
+          name: string
           source?: string | null
         }
         Update: {
@@ -218,6 +277,7 @@ export type Database = {
           event_datetime?: string
           id?: string
           magnitude?: number | null
+          name?: string
           source?: string | null
         }
         Relationships: []

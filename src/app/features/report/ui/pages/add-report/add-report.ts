@@ -2,10 +2,11 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { Fab } from '../../../../../shared/components/fab/fab';
 import { ReportStore } from '../../stores/report.store';
 import { MapForm } from "../../components/map-form/map-form";
+import { NewReportForm } from "../../components/new-report-form/new-report-form";
 
 @Component({
   selector: 'app-add-report',
-  imports: [Fab, MapForm],
+  imports: [Fab, MapForm, NewReportForm],
   templateUrl: './add-report.html',
   styleUrl: './add-report.css',
   providers: [ReportStore],

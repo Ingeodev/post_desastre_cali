@@ -1,63 +1,71 @@
+import { inject } from '@angular/core';
 import {
   patchState,
   signalStore,
   withMethods,
-  withProps,
   withState,
 } from '@ngrx/signals';
-import { IndexDb } from '../../../../core/data/local/db';
-import { AttachmentRepository } from '../../data/repositories/attachment.repository';
-import { Photo } from '../../domain/models/photo.model';
-import { Report } from '../../domain/models/report.model';
-import { GetAttachments } from '../../domain/use-cases/get-attachments';
-import { SaveAttachment } from '../../domain/use-cases/save-attachment';
+import { DamageInspectionsInsert } from '../../../../core/supabase-models/supabase-type-aliases';
+import { MapStore } from './map.store';
 
-const REPORT_ID = '1';
+export interface NewReportDraft {
+  addressText: string;
+  approxYearBuilt: number | null;
+  capturedAt: string;
+  constructionTypeId: number | null;
+  damageCategoryId: number | null;
+  dataSourceId: number | null;
+  notes: string;
+  numFloors: number | null;
+  reportedBy: string;
+  seismicEventId: string | null;
+}
 
-type ReportsState = {
-  reports: Report[];
-  selectedReport: string | null;
-  photos: Photo[];
-  isLoading: boolean;
-  filter: { query: string; order: 'asc' | 'desc' };
+const initialDraft: NewReportDraft = {
+  addressText: '',
+  approxYearBuilt: null,
+  capturedAt: new Date().toISOString(),
+  constructionTypeId: null,
+  damageCategoryId: null,
+  dataSourceId: null,
+  notes: '',
+  numFloors: null,
+  reportedBy: '',
+  seismicEventId: null,
 };
 
-const initialState: ReportsState = {
-  reports: [],
-  selectedReport: null,
-  photos: [],
-  isLoading: false,
-  filter: { query: '', order: 'asc' },
-};
-
-export const ReportStore = signalStore(
-  { providedIn: 'root' },
-  withState(initialState),
-  withProps(() => {
-    const repository = new AttachmentRepository(new IndexDb());
+export const NewReportStore = signalStore(
+  withState<NewReportDraft>(initialDraft),
+  withMethods((store) => {
+    const mapStore = inject(MapStore);
 
     return {
-      saveAttachment: new SaveAttachment(repository),
-      getAttachments: new GetAttachments(repository),
+      updateDraft(partial: Partial<NewReportDraft>): void {
+        patchState(store, partial);
+      },
+
+      resetDraft(): void {
+        patchState(store, initialDraft);
+      },
+
+      buildReport(): DamageInspectionsInsert {
+        const [lng, lat] = mapStore.center();
+
+        return {
+          captured_at: store.capturedAt(),
+          damage_category_id: store.damageCategoryId() ?? 0,
+          data_source_id: store.dataSourceId() ?? 0,
+          seismic_event_id: store.seismicEventId() ?? '',
+          construction_type_id: store.constructionTypeId(),
+          device_local_id: crypto.randomUUID(),
+          geom: { type: 'Point', coordinates: [lng, lat] },
+          address_text: store.addressText() || null,
+          approx_year_built: store.approxYearBuilt(),
+          notes: store.notes() || null,
+          num_floors: store.numFloors(),
+          reported_by: store.reportedBy() || null,
+        };
+      },
     };
   }),
-  withMethods((store) => ({
-    async loadPhotos(): Promise<void> {
-      const photos = await store.getAttachments.execute(REPORT_ID);
-
-      patchState(store, { photos });
-    },
-  })),
-  withMethods((store) => ({
-    async savePhoto(file: Blob): Promise<void> {
-      const photo: Photo = {
-        id: crypto.randomUUID(),
-        url: '',
-        file,
-      };
-
-      await store.saveAttachment.execute(photo, REPORT_ID);
-      await store.loadPhotos();
-    },
-  })),
 );
