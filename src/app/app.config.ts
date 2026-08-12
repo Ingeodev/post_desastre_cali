@@ -1,6 +1,8 @@
 import { ApplicationConfig, provideBrowserGlobalErrorListeners, isDevMode } from '@angular/core';
 import { provideRouter } from '@angular/router';
 
+import { provideMaplibreWorker } from '@maplibre/ngx-maplibre-gl/config';
+
 import { routes } from './app.routes';
 import { provideServiceWorker } from '@angular/service-worker';
 import { providePrimeNG } from 'primeng/config';
@@ -26,5 +28,6 @@ export const appConfig: ApplicationConfig = {
       enabled: !isDevMode(),
       registrationStrategy: 'registerWhenStable:30000',
     }),
+    provideMaplibreWorker('maplibre-gl-worker.mjs'),
   ],
 };

@@ -8,8 +8,9 @@ describe('MapForm', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [MapForm],
-    }).compileComponents();
+      imports: [MapForm]
+    })
+    .compileComponents();
 
     fixture = TestBed.createComponent(MapForm);
     component = fixture.componentInstance;
