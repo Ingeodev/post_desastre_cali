@@ -1,0 +1,34 @@
+@if (location()) {
+  <!-- Accuracy buffer -->
+  <mgl-geojson-source
+    id="user-location-accuracy"
+    [data]="accuracySource()"
+  />
+
+  <mgl-layer
+    id="user-location-accuracy-fill"
+    type="fill"
+    source="user-location-accuracy"
+    [paint]="accuracyFillPaint"
+  />
+
+  <mgl-layer
+    id="user-location-accuracy-outline"
+    type="line"
+    source="user-location-accuracy"
+    [paint]="accuracyOutlinePaint"
+  />
+
+  <!-- User position -->
+  <mgl-geojson-source
+    id="user-location-marker"
+    [data]="markerSource()"
+  />
+
+  <mgl-layer
+    id="user-location-marker-circle"
+    type="circle"
+    source="user-location-marker"
+    [paint]="markerPaint"
+  />
+}

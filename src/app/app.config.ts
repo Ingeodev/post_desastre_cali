@@ -7,6 +7,7 @@ import { routes } from './app.routes';
 import { provideServiceWorker } from '@angular/service-worker';
 import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeuix/themes/aura';
+import { IngeodevPreset } from '../ingeodev.theme';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -17,10 +18,11 @@ export const appConfig: ApplicationConfig = {
       registrationStrategy: 'registerWhenStable:30000',
     }),
     providePrimeNG({
+      inputVariant: 'outlined',
       theme: {
-        preset: Aura,
+        preset: IngeodevPreset,
         options: {
-          darkModeSelector: 'system',
+          darkModeSelector: false,
         },
       },
     }),

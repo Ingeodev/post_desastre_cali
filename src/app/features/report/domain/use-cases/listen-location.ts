@@ -1,10 +1,18 @@
 import { Observable } from 'rxjs';
-import { GeoLocation, LocationService } from '../../../../core/sensors/location/location.service';
+import {
+  GeoLocation,
+  LocationService,
+} from '../../../../core/sensors/location/location.service';
+import { Result } from '../../../../shared/utils/result';
+import { inject, Injectable } from '@angular/core';
 
+
+@Injectable({ providedIn: 'root' })
 export class ListenLocation {
-  constructor(private readonly locationService: LocationService) {}
+  locationService = inject(LocationService);
 
-  execute(): Observable<GeoLocation> {
+  execute(): Observable<Result<GeoLocation>> {
+
     return this.locationService.listen();
   }
 }

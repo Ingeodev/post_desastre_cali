@@ -42,3 +42,13 @@ __screenshots__/
 # System files
 .DS_Store
 Thumbs.db
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+src/environments/environment.ts
+src/environments/environment.development.ts
+
+# Supabase local state
+supabase/.temp/

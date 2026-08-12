@@ -1,6 +1,61 @@
-<mgl-map
-      [mapStyle]="'https://demotiles.maplibre.org/style.json'"
-      [zoom]="9"
-      [center]="[-74.5, 40]"
-    >
-    </mgl-map>
+<div class="h-full relative">
+  @if (store.showIndication()) {
+  <div class="absolute w-full h-full z-[1100] ">
+    <app-map-indications/>
+  </div>
+  }@else {
+  <div class="absolute w-full h-full z-[1100] pointer-events-none flex justify-between p-4">
+    <div class="flex flex-col gap-4">
+
+      @if (store.mode() === 'default') {
+      <p-button class=" pointer-events-auto" label="Marcar en el mapa" size="small" rounded raised (click)="enableCapturing()">
+        <ng-template #icon>
+          <ng-icon name="hugeCursorPointer02" />
+        </ng-template>
+      </p-button>
+
+      <p-button class=" pointer-events-auto" label="Usar ubicacion actual" severity="secondary" size="small" rounded raised (click)="setUserLocationAsReportLocation()">
+        <ng-template #icon>
+          <ng-icon name="hugePinLocation03" />
+        </ng-template>
+      </p-button>
+      }
+    </div>
+    <div class="flex flex-col gap-4">
+      @if (store.mode() === 'capturing') {
+      <p-button class=" pointer-events-auto" label="Aceptar" size="small" rounded raised (click)="setCenterAsReportLocation()">
+        <ng-template #icon>
+          <ng-icon name="hugeCursorPointer02" />
+        </ng-template>
+      </p-button>
+
+      <p-button class=" pointer-events-auto" label="cancelar" severity="secondary" size="small" rounded raised (click)="cancelCapturing()">
+        <ng-template #icon>
+          <ng-icon name="hugePinLocation03" />
+        </ng-template>
+      </p-button>
+      }
+    </div>
+
+  </div>
+  }
+
+
+
+  @if (store.mode() === 'capturing') {
+  <div class="absolute w-full h-full z-[1100] pointer-events-none flex justify-center items-center">
+    <ng-icon size="2rem" color="red" name="matPointScanFillRound" />
+  </div>
+  }
+
+
+  <mgl-map
+   [mapStyle]="mapStyle" 
+   [center]="store.center()" 
+   [zoom]="zoom()" 
+  (mapDragStart)="onUserInteraction()"
+  (mapDragEnd)="onDragEnd($event)"
+  >
+    <app-user-location-layer />
+  </mgl-map>
+</div>
