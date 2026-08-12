@@ -65,8 +65,8 @@ Componentes por step: `step-description`, `step-damage`, `step-occupancy` (+ `ma
 - [x] `AttachmentManager` a grilla con launcher primero
 - [x] `Stepp` preserva estado (hidden)
 - [x] `FormStepper` — `finishLabel`
-- [x] Reescribir `AddReport2` como página real de 5 steps + autofill + finish
-- [x] Specs: store, steps, stepp, AddReport2 — **24/24 verdes** en suite dirigida
+- [x] Reescribir la página de reporte como 5 steps reales + autofill + finish (renombrada `add-report`, sustituyendo la página anterior)
+- [x] Specs: store, steps, stepp, página de reporte — suite dirigida verde
 
 ### Estado de suite completo
 - **34/37 tests verdes**. 3 fallas PRE-EXISTENTES fuera de alcance (fallan igual sin estos cambios, al crear/limpiar con maplibre/inputs requeridos):
@@ -79,7 +79,7 @@ Componentes por step: `step-description`, `step-damage`, `step-occupancy` (+ `ma
 - `src/app/features/report/ui/components/attachment-manager/*` (grilla)
 - `src/app/shared/components/stepp/*` (preserva estado)
 - `src/app/shared/components/form-stepper/*` (`finishLabel`)
-- `src/app/features/report/ui/pages/add-report-2/*` (página real)
+- `src/app/features/report/ui/pages/add-report/*` (página real, sustituyó a la anterior)
 
 ## Pendiente / próximo hito
 

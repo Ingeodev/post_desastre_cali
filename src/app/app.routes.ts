@@ -1,12 +1,12 @@
 import { Routes } from '@angular/router';
 import { List } from './features/report/ui/pages/list/list';
 import { AddReport } from './features/report/ui/pages/add-report/add-report';
-import { AddReport2 } from './features/report/ui/pages/add-report-2/add-report-2';
+import { Settings } from './features/settings/ui/pages/settings/settings';
 
 export const routes: Routes = [
   {
     path: '',
-    component: AddReport2,
+    component: Settings,
   },
   {
     path: 'reportes',
@@ -18,6 +18,6 @@ export const routes: Routes = [
   },
   {
     path: '**',
-    component: AddReport2,
+    component: Settings,
   },
 ];
