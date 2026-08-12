@@ -29,7 +29,6 @@ import { AttachmentManager } from "../attachment-manager/attachment-manager";
     TextareaModule,
     AttachmentManager
 ],
-  providers: [NewReportStore],
   templateUrl: './new-report-form.html',
   styleUrl: './new-report-form.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

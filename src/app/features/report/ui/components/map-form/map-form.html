@@ -55,8 +55,8 @@
   }
 
 
-  <mgl-map [mapStyle]="mapStyle" [center]="store.center()" [zoom]="zoom()" (mapDragStart)="onUserInteraction()"
-    (mapDragEnd)="onDragEnd($event)">
+  <mgl-map [mapStyle]="mapStyle" [center]="store.center()" [zoom]="zoom()"
+    (moveEnd)="onMoveEnd($event)">
     <app-user-location-layer />
 
     @if(store.status() === 'captured'){

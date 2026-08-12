@@ -1,14 +1,13 @@
-import { inject } from '@angular/core';
-import {
-  patchState,
+import { patchState,
   signalStore,
   withMethods,
   withState,
 } from '@ngrx/signals';
 import { DamageInspectionsInsert } from '../../../../core/supabase-models/supabase-type-aliases';
-import { MapStore } from './map.store';
 import { InspectionPhotoEntity } from '../../data/entities/inspection-photo.entity';
 import { resizePhoto, toLocalPhoto } from '../../application/mappers/photo.mapper';
+
+type PointGeom = { type: 'Point', coordinates: [number, number]}
 
 export interface NewReportDraft {
   addressText: string;
@@ -21,7 +20,7 @@ export interface NewReportDraft {
   numFloors: number | null;
   reportedBy: string;
   seismicEventId: string | null;
-  geom: { type: 'Point', coordinates: [number, number]}| null
+  geom: PointGeom | null
 }
 
 const initialDraft: NewReportDraft = {
@@ -49,10 +48,9 @@ const initilState = {
 }
 
 export const NewReportStore = signalStore(
+  { providedIn: 'root' },
   withState<NewReportState>(initilState),
   withMethods((store) => {
-    const mapStore = inject(MapStore);
-
     return {
       updateDraft(partial: Partial<NewReportDraft>): void {
         patchState(store, {report: { ...store.report(), ...partial}});
@@ -63,9 +61,10 @@ export const NewReportStore = signalStore(
       },
 
       setCoordinates(coordinates: [number, number] ) {
+        let geom: PointGeom = { type: 'Point', coordinates: coordinates}
         patchState(store, { report: {
           ...store.report(),
-          geom: { type: 'Point', coordinates: coordinates},
+          geom,
         }})
       },
 

@@ -48,10 +48,6 @@ export class MapForm {
   readonly mapStyle = GOOGLE_MAPS_STYLE;
   readonly zoom = signal(DEFAULT_ZOOM);
 
-  onUserInteraction(): void {
-    this.store.stopFollowing();
-  }
-
   enableCapturing () {
       this.store.changeMode('capturing')
   }
@@ -60,8 +56,8 @@ export class MapForm {
     this.store.changeMode('default')
   }
 
-  onDragEnd(event: MapLibreEvent) {
-    let center = event.target.getCenter()
+  onMoveEnd(event: MapLibreEvent) {
+    const center = event.target.getCenter()
     this.store.setCenter(center.lng, center.lat)
   }
 

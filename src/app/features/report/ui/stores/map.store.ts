@@ -23,7 +23,6 @@ export interface MapState {
   error?: Error;
   center: [number, number];
   location: GeoLocation | null;
-  following: boolean;
 }
 
 
@@ -33,7 +32,6 @@ const initialState: MapState = {
   showIndication: true,
   center: CALI_CENTER,
   location: null,
-  following: true,
 };
 
 export const MapStore = signalStore(
@@ -44,6 +42,7 @@ export const MapStore = signalStore(
   })),
   withMethods((store) => {
     let locationSubscription: Subscription | undefined;
+    let centeredOnUser = false;
 
     return {
       listenToLocation(): void {
@@ -59,19 +58,19 @@ export const MapStore = signalStore(
             }
 
             const location = result.value;
-            patchState(store, {
-              location,
-              ...(store.following() ? { center: [location.lng, location.lat] } : {}),
-            });
+
+            if (!centeredOnUser) {
+              patchState(store, { location, center: [location.lng, location.lat] });
+              centeredOnUser = true;
+            } else {
+              patchState(store, { location });
+            }
           },
         });
       },
       stopListening(): void {
         locationSubscription?.unsubscribe();
         locationSubscription = undefined;
-      },
-      stopFollowing(): void {
-        patchState(store, { following: false });
       },
 
       changeMode(m: MapMode): void {
@@ -81,6 +80,10 @@ export const MapStore = signalStore(
       },
 
       setCenter(lng: number, lat: number) {
+        const [currentLng, currentLat] = store.center();
+        if (Math.abs(currentLng - lng) < 1e-9 && Math.abs(currentLat - lat) < 1e-9) {
+          return;
+        }
         patchState(store, {
            center: [lng, lat], 
         })

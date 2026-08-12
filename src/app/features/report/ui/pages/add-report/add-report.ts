@@ -2,7 +2,6 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { ReportStore } from '../../stores/report.store';
 import { MapForm } from "../../components/map-form/map-form";
 import { NewReportForm } from "../../components/new-report-form/new-report-form";
-import { NewReportStore } from '../../stores/new-report.store';
 import { DamagePatternCatalogComponent } from "../../components/damage-catalog/damage-catalog";
 
 @Component({
@@ -10,7 +9,6 @@ import { DamagePatternCatalogComponent } from "../../components/damage-catalog/d
   imports: [MapForm, NewReportForm, DamagePatternCatalogComponent],
   templateUrl: './add-report.html',
   styleUrl: './add-report.css',
-  providers: [ReportStore, NewReportStore],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AddReport {
