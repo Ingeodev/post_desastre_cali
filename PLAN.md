@@ -20,7 +20,8 @@ Partir el formulario del reporte nuevo en **5 formularios con validación**, uno
 | 2 | Descripción de la construcción | tipo de edificación, año de construcción, dirección, nº de pisos | `construction_type_id` requerido (decidido) |
 | 3 | Estado de la construcción | catálogo de daños (n:n, multi-opcional) + nivel de daño percibido | `damage_category_id` requerido |
 | 4 | Ocupantes | checkboxes (¿ocupada?, ¿atrapados?) + residentes aprox. | Los 3 campos diligenciados (decidido) |
-| 5 | Fotografías | `attachment-manager` en grilla con launcher de cámara como primer ítem | Al menos 1 foto |
+| 5 | Notas | textarea de observaciones | Opcional |
+| 6 | Fotografías | `attachment-manager` en grilla con launcher de cámara como primer ítem | Al menos 1 foto |
 
 ## Decisiones confirmadas
 
@@ -60,6 +61,7 @@ Componentes por step: `step-description`, `step-damage`, `step-occupancy` (+ `ma
 - [x] Crear `StepDescription` (tipo edificación, año, dirección, pisos)
 - [x] Crear `StepDamage` (catálogo multi + nivel de daño requerido)
 - [x] Crear `StepOccupancy` (checkboxes + residentes)
+- [x] Crear `StepNotes` (textArea opcional, paso 5)
 - [x] `AttachmentManager` a grilla con launcher primero
 - [x] `Stepp` preserva estado (hidden)
 - [x] `FormStepper` — `finishLabel`

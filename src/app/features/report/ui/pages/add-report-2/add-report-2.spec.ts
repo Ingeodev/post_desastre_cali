@@ -174,7 +174,7 @@ describe('AddReport2', () => {
     store.addPhotoEntity(fakePhoto());
     fixture.detectChanges();
 
-    for (let step = 0; step < 4; step++) {
+    for (let step = 0; step < 5; step++) {
       getButton(fixture, 'Siguiente').click();
       fixture.detectChanges();
     }

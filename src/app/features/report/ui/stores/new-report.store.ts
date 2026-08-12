@@ -31,6 +31,7 @@ export interface InspectionDraft {
   id: string;
   deviceLocalId: string;
   capturedAt: string;
+  createdAt: string;
   geom: GeoJsonPoint | null;
   damageCategoryId: number | null;
   dataSourceId: number | null;
@@ -66,12 +67,14 @@ export interface ReportEntities {
 
 function createInitialState(): NewReportState {
   const id = crypto.randomUUID();
+  const now = new Date().toISOString();
 
   return {
     inspection: {
       id,
       deviceLocalId: id,
-      capturedAt: new Date().toISOString(),
+      capturedAt: now,
+      createdAt: now,
       geom: null,
       damageCategoryId: null,
       dataSourceId: null,
@@ -218,7 +221,7 @@ export const NewReportStore = signalStore(
             notes: inspection.notes,
             numFloors: inspection.numFloors,
             reportedBy: inspection.reportedBy,
-            createdAt: null,
+            createdAt: inspection.createdAt,
             syncedAt: null,
           },
           occupancy: {

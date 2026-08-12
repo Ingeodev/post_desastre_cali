@@ -23,7 +23,11 @@
       <app-step-occupancy />
     </app-stepp>
 
-    <app-stepp [position]="4" [validate]="hasPhotos()">
+    <app-stepp [position]="4" [validate]="true">
+      <app-step-notes />
+    </app-stepp>
+
+    <app-stepp [position]="5" [validate]="hasPhotos()">
       <app-attachment-manager />
     </app-stepp>
   </app-form-stepper>

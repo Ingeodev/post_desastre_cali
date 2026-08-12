@@ -7,6 +7,7 @@ import { MapForm } from '../../components/map-form/map-form';
 import { StepDamage } from '../../components/step-damage/step-damage';
 import { StepDescription } from '../../components/step-description/step-description';
 import { StepOccupancy } from '../../components/step-occupancy/step-occupancy';
+import { StepNotes } from '../../components/step-notes/step-notes';
 import { NewReportStore } from '../../stores/new-report.store';
 import { ReportStore } from '../../stores/report.store';
 
@@ -19,6 +20,7 @@ import { ReportStore } from '../../stores/report.store';
     StepDescription,
     StepDamage,
     StepOccupancy,
+    StepNotes,
     AttachmentManager,
   ],
   templateUrl: './add-report-2.html',
