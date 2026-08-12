@@ -1,0 +1,33 @@
+<div class="flex flex-col gap-4">
+  <header class="flex flex-col gap-1">
+    <h3 class="text-sm font-semibold text-zinc-900 dark:text-zinc-50">
+      Estado de la construcción
+    </h3>
+    <p class="text-xs text-zinc-500 dark:text-zinc-400">
+      Selecciona el nivel de daño percibido y los patrones de daño observados
+      (pueden marcarse varios o ninguno).
+    </p>
+  </header>
+
+  <form [formGroup]="damageForm" class="flex flex-col gap-4">
+    <div class="flex flex-col gap-1">
+      <label for="damageCategoryId" class="text-sm font-medium">
+        Nivel de daño percibido
+      </label>
+      <p-select
+        id="damageCategoryId"
+        formControlName="damageCategoryId"
+        [options]="damageCategories"
+        optionLabel="label"
+        optionValue="id"
+        placeholder="Selecciona categoría"
+        class="w-full"
+      />
+    </div>
+  </form>
+
+  <app-damage-catalog
+    [items]="reportStore.damageCatalog()"
+    (selectedItemsChange)="onPatternsChange($event)"
+  />
+</div>

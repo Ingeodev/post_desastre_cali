@@ -1,0 +1,57 @@
+<div class="flex flex-col gap-4">
+  <header class="flex flex-col gap-1">
+    <h3 class="text-sm font-semibold text-zinc-900 dark:text-zinc-50">
+      Descripción de la construcción
+    </h3>
+    <p class="text-xs text-zinc-500 dark:text-zinc-400">
+      Tipo de edificación, antigüedad, dirección y número de pisos.
+    </p>
+  </header>
+
+  <form [formGroup]="form" class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+    <div class="flex flex-col gap-1">
+      <label for="constructionTypeId" class="text-sm font-medium">Tipo de edificación</label>
+      <p-select
+        id="constructionTypeId"
+        formControlName="constructionTypeId"
+        [options]="constructionTypes"
+        optionLabel="label"
+        optionValue="id"
+        placeholder="Selecciona tipo"
+        class="w-full"
+      />
+    </div>
+
+    <p-floatlabel variant="over">
+      <p-inputnumber
+        id="approxYearBuilt"
+        formControlName="approxYearBuilt"
+        [min]="1800"
+        [max]="2100"
+        class="w-full"
+      />
+      <label for="approxYearBuilt">Año de construcción</label>
+    </p-floatlabel>
+
+    <p-floatlabel variant="over">
+      <input
+        id="addressText"
+        formControlName="addressText"
+        type="text"
+        pInputText
+        class="w-full"
+      />
+      <label for="addressText">Dirección</label>
+    </p-floatlabel>
+
+    <div class="flex flex-col gap-1">
+      <label for="numFloors" class="text-sm font-medium">Número de pisos</label>
+      <p-inputnumber
+        id="numFloors"
+        formControlName="numFloors"
+        [min]="0"
+        class="w-full"
+      />
+    </div>
+  </form>
+</div>

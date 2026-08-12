@@ -84,6 +84,7 @@ describe('FormStepper', () => {
     fixture.detectChanges();
 
     expect(fixture.nativeElement.querySelector('[data-step="0"]')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('[data-step="1"]')).toBeNull();
   });
 
   it('should advance to the next step when the current step is valid', () => {

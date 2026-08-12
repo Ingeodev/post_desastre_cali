@@ -1,52 +1,46 @@
-<div>
-    <label class="text-sm font-medium">Fotografías</label>
+<div class="flex flex-col gap-2">
+  <label class="text-sm font-medium">Fotografías</label>
 
-    <div class="flex w-full gap-3 overflow-x-auto snap-x snap-mandatory pb-2">
+  <div class="grid grid-cols-3 gap-2">
+    <button
+      type="button"
+      class="flex aspect-square flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-surface-300 bg-surface-50 text-surface-500 transition-colors hover:bg-surface-100"
+      (click)="cameraInput.click()"
+    >
+      <i class="pi pi-camera text-2xl"></i>
+      <span class="px-1 text-center text-xs font-medium">Agregar foto</span>
+    </button>
 
-        @for (photo of newReportStore.photos(); track photo.id) {
-        <div class="relative min-w-[60%] aspect-square shrink-0 snap-start
-                   overflow-hidden rounded-xl bg-surface-100">
-            <img
-                [src]="photoUrl(photo)"
-                alt="Foto del reporte"
-                class="h-full w-full object-cover"
-            />
+    @for (photo of newReportStore.photos(); track photo.id) {
+      <div class="relative aspect-square overflow-hidden rounded-xl bg-surface-100">
+        <img
+          [src]="photoUrl(photo)"
+          alt="Foto del reporte"
+          class="h-full w-full object-cover"
+        />
 
-            <button
-                type="button"
-                class="absolute right-2 top-2 flex h-8 w-8 items-center
-                       justify-center rounded-full bg-black/60 text-white
-                       backdrop-blur-sm hover:bg-black/80"
-                (click)="onRemovePhoto(photo)"
-            >
-                <i class="pi pi-times"></i>
-            </button>
-        </div>
-        }@empty {
-        <p class="text-sm text-surface-500">No hay fotos aún</p>
-        }
-
-                <button type="button" class="relative min-w-[60%] aspect-square shrink-0 snap-start
-               overflow-hidden rounded-xl border-2 border-dashed
-               border-surface-300 bg-surface-50
-               flex flex-col items-center justify-center
-               text-surface-500 hover:bg-surface-100
-               transition-colors"
-               (click)="cameraInput.click()">
-            <i class="pi pi-camera text-3xl mb-2"></i>
-
-            <span class="text-sm font-medium">
-                Agregar foto
-            </span>
+        <button
+          type="button"
+          class="absolute right-1 top-1 flex h-7 w-7 items-center justify-center rounded-full bg-black/60 text-white backdrop-blur-sm hover:bg-black/80"
+          (click)="onRemovePhoto(photo)"
+        >
+          <i class="pi pi-times text-xs"></i>
         </button>
-    </div>
+      </div>
+    }
+  </div>
+
+  <p class="flex items-center gap-1 text-xs text-surface-500">
+    <i class="pi pi-exclamation-circle"></i>
+    Se necesita al menos una foto para poder enviar el reporte.
+  </p>
 </div>
 
 <input
-    #cameraInput
-    type="file"
-    accept="image/*"
-    capture="environment"
-    hidden
-    (change)="onPhotoSelected($event)"
+  #cameraInput
+  type="file"
+  accept="image/*"
+  capture="environment"
+  hidden
+  (change)="onPhotoSelected($event)"
 />

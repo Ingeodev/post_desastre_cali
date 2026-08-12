@@ -1,13 +1,17 @@
-import { patchState,
+import { computed } from '@angular/core';
+import {
+  patchState,
   signalStore,
+  withComputed,
   withMethods,
   withState,
 } from '@ngrx/signals';
 import { DamageInspectionsInsert } from '../../../../core/supabase-models/supabase-type-aliases';
-import { InspectionPhotoEntity } from '../../data/entities/inspection-photo.entity';
 import { resizePhoto, toLocalPhoto } from '../../application/mappers/photo.mapper';
-
-type PointGeom = { type: 'Point', coordinates: [number, number]}
+import { GeoJsonPoint, InspectionEntity } from '../../data/entities/inspection.entity';
+import { InspectionOccupancyEntity } from '../../data/entities/inspection-occupancy.entity';
+import { InspectionPatternEntity } from '../../data/entities/inspection-pattern.entity';
+import { InspectionPhotoEntity } from '../../data/entities/inspection-photo.entity';
 
 export interface NewReportDraft {
   addressText: string;
@@ -20,52 +24,151 @@ export interface NewReportDraft {
   numFloors: number | null;
   reportedBy: string;
   seismicEventId: string | null;
-  geom: PointGeom | null
+  geom: GeoJsonPoint | null;
 }
 
-const initialDraft: NewReportDraft = {
-  addressText: '',
-  approxYearBuilt: null,
-  capturedAt: new Date().toISOString(),
-  constructionTypeId: null,
-  damageCategoryId: null,
-  dataSourceId: null,
-  notes: '',
-  numFloors: null,
-  reportedBy: '',
-  seismicEventId: null,
-  geom: null
-};
+export interface InspectionDraft {
+  id: string;
+  deviceLocalId: string;
+  capturedAt: string;
+  geom: GeoJsonPoint | null;
+  damageCategoryId: number | null;
+  dataSourceId: number | null;
+  seismicEventId: string | null;
+  constructionTypeId: number | null;
+  addressText: string | null;
+  approxYearBuilt: number | null;
+  numFloors: number | null;
+  notes: string | null;
+  reportedBy: string | null;
+}
+
+export interface OccupancyDraft {
+  inspectionId: string;
+  estimatedResidents: number | null;
+  hasTrappedPeople: boolean | null;
+  isCurrentlyOccupied: boolean | null;
+}
 
 interface NewReportState {
-  report: NewReportDraft
-  photos: InspectionPhotoEntity[]
+  inspection: InspectionDraft;
+  occupancy: OccupancyDraft;
+  patternIds: number[];
+  photos: InspectionPhotoEntity[];
 }
 
-const initilState = {
-  report: initialDraft,
-  photos: [] as InspectionPhotoEntity[],
+export interface ReportEntities {
+  inspection: InspectionEntity;
+  occupancy: InspectionOccupancyEntity | null;
+  patterns: InspectionPatternEntity[];
+  photos: InspectionPhotoEntity[];
+}
+
+function createInitialState(): NewReportState {
+  const id = crypto.randomUUID();
+
+  return {
+    inspection: {
+      id,
+      deviceLocalId: id,
+      capturedAt: new Date().toISOString(),
+      geom: null,
+      damageCategoryId: null,
+      dataSourceId: null,
+      seismicEventId: null,
+      constructionTypeId: null,
+      addressText: null,
+      approxYearBuilt: null,
+      numFloors: null,
+      notes: null,
+      reportedBy: null,
+    },
+    occupancy: {
+      inspectionId: id,
+      estimatedResidents: null,
+      hasTrappedPeople: null,
+      isCurrentlyOccupied: null,
+    },
+    patternIds: [],
+    photos: [],
+  };
 }
 
 export const NewReportStore = signalStore(
   { providedIn: 'root' },
-  withState<NewReportState>(initilState),
+  withState<NewReportState>(createInitialState()),
+  withComputed((store) => ({
+    report: computed((): NewReportDraft => {
+      const inspection = store.inspection();
+
+      return {
+        addressText: inspection.addressText ?? '',
+        approxYearBuilt: inspection.approxYearBuilt,
+        capturedAt: inspection.capturedAt,
+        constructionTypeId: inspection.constructionTypeId,
+        damageCategoryId: inspection.damageCategoryId,
+        dataSourceId: inspection.dataSourceId,
+        notes: inspection.notes ?? '',
+        numFloors: inspection.numFloors,
+        reportedBy: inspection.reportedBy ?? '',
+        seismicEventId: inspection.seismicEventId,
+        geom: inspection.geom,
+      };
+    }),
+    isReadyToStore: computed(() => {
+      const inspection = store.inspection();
+
+      return (
+        inspection.geom !== null &&
+        inspection.damageCategoryId !== null &&
+        inspection.dataSourceId !== null &&
+        inspection.seismicEventId !== null &&
+        store.photos().length > 0
+      );
+    }),
+  })),
   withMethods((store) => {
+    const assertComplete = (inspection: InspectionDraft): void => {
+      if (
+        !inspection.geom ||
+        inspection.damageCategoryId === null ||
+        inspection.dataSourceId === null ||
+        !inspection.seismicEventId
+      ) {
+        throw new Error('Incomplete report: required inspection fields are missing');
+      }
+    };
+
     return {
+      updateInspection(partial: Partial<InspectionDraft>): void {
+        patchState(store, { inspection: { ...store.inspection(), ...partial } });
+      },
+
       updateDraft(partial: Partial<NewReportDraft>): void {
-        patchState(store, {report: { ...store.report(), ...partial}});
+        patchState(store, {
+          inspection: {
+            ...store.inspection(),
+            ...partial,
+            addressText: partial.addressText ?? null,
+            notes: partial.notes ?? null,
+            reportedBy: partial.reportedBy ?? null,
+          },
+        });
       },
 
-      resetDraft(): void {
-        patchState(store, {report: initialDraft});
+      setCoordinates(coordinates: [number, number]): void {
+        const geom: GeoJsonPoint = { type: 'Point', coordinates };
+        patchState(store, { inspection: { ...store.inspection(), geom } });
       },
 
-      setCoordinates(coordinates: [number, number] ) {
-        let geom: PointGeom = { type: 'Point', coordinates: coordinates}
-        patchState(store, { report: {
-          ...store.report(),
-          geom,
-        }})
+      updateOccupancy(
+        partial: Partial<Omit<OccupancyDraft, 'inspectionId'>>,
+      ): void {
+        patchState(store, { occupancy: { ...store.occupancy(), ...partial } });
+      },
+
+      setPatternIds(patternIds: number[]): void {
+        patchState(store, { patternIds });
       },
 
       async addPhoto(blob: Blob): Promise<void> {
@@ -73,35 +176,87 @@ export const NewReportStore = signalStore(
 
         const photo = toLocalPhoto({
           id: crypto.randomUUID(),
-          inspectionId: null,
+          inspectionId: store.inspection().id,
           blob: resized,
           sequence: store.photos().length,
         });
 
-        patchState(store, { photos: [...store.photos(), photo]});
+        patchState(store, { photos: [...store.photos(), photo] });
+      },
+
+      addPhotoEntity(photo: InspectionPhotoEntity): void {
+        patchState(store, { photos: [...store.photos(), photo] });
       },
 
       removePhoto(id: string): void {
         patchState(store, {
-          photos: store.photos().filter(photo => photo.id !== id),
+          photos: store.photos().filter((photo) => photo.id !== id),
         });
       },
 
-      buildReport(): DamageInspectionsInsert {
+      resetDraft(): void {
+        patchState(store, createInitialState());
+      },
+
+      buildEntities(): ReportEntities {
+        const inspection = store.inspection();
+        assertComplete(inspection);
 
         return {
-          captured_at: store.report.capturedAt(),
-          damage_category_id: store.report.damageCategoryId() ?? 0,
-          data_source_id: store.report.dataSourceId() ?? 0,
-          seismic_event_id: store.report.seismicEventId() ?? '',
-          construction_type_id: store.report.constructionTypeId(),
-          device_local_id: crypto.randomUUID(),
-          geom: store.report.geom(),
-          address_text: store.report.addressText() || null,
-          approx_year_built: store.report.approxYearBuilt(),
-          notes: store.report.notes() || null,
-          num_floors: store.report.numFloors(),
-          reported_by: store.report.reportedBy() || null,
+          inspection: {
+            id: inspection.id,
+            deviceLocalId: inspection.deviceLocalId,
+            capturedAt: inspection.capturedAt,
+            geom: inspection.geom!,
+            damageCategoryId: inspection.damageCategoryId!,
+            dataSourceId: inspection.dataSourceId!,
+            seismicEventId: inspection.seismicEventId!,
+            constructionTypeId: inspection.constructionTypeId,
+            deviceId: null,
+            addressText: inspection.addressText,
+            approxYearBuilt: inspection.approxYearBuilt,
+            notes: inspection.notes,
+            numFloors: inspection.numFloors,
+            reportedBy: inspection.reportedBy,
+            createdAt: null,
+            syncedAt: null,
+          },
+          occupancy: {
+            id: inspection.id,
+            inspectionId: inspection.id,
+            createdAt: inspection.capturedAt,
+            estimatedResidents: store.occupancy().estimatedResidents,
+            hasTrappedPeople: store.occupancy().hasTrappedPeople,
+            isCurrentlyOccupied: store.occupancy().isCurrentlyOccupied,
+          },
+          patterns: store.patternIds().map((patternId) => ({
+            inspectionId: inspection.id,
+            patternId,
+          })),
+          photos: store.photos().map((photo) => ({
+            ...photo,
+            inspectionId: inspection.id,
+          })),
+        };
+      },
+
+      buildReport(): DamageInspectionsInsert {
+        const inspection = store.inspection();
+        assertComplete(inspection);
+
+        return {
+          captured_at: inspection.capturedAt,
+          damage_category_id: inspection.damageCategoryId!,
+          data_source_id: inspection.dataSourceId!,
+          seismic_event_id: inspection.seismicEventId!,
+          construction_type_id: inspection.constructionTypeId,
+          device_local_id: inspection.deviceLocalId,
+          geom: inspection.geom!,
+          address_text: inspection.addressText,
+          approx_year_built: inspection.approxYearBuilt,
+          notes: inspection.notes,
+          num_floors: inspection.numFloors,
+          reported_by: inspection.reportedBy,
         };
       },
     };

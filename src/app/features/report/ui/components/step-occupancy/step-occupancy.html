@@ -1,0 +1,50 @@
+<div class="flex flex-col gap-4">
+  <header class="flex flex-col gap-1">
+    <h3 class="text-sm font-semibold text-zinc-900 dark:text-zinc-50">
+      Ocupantes
+    </h3>
+    <p class="text-xs text-zinc-500 dark:text-zinc-400">
+      Residentes y condición de ocupación de la construcción.
+    </p>
+  </header>
+
+  <form [formGroup]="form" class="flex flex-col gap-5">
+    <div class="flex flex-col gap-3">
+      <label class="text-sm font-medium">Condición de ocupación</label>
+
+      <div class="flex items-center gap-2">
+        <p-checkbox
+          [binary]="true"
+          formControlName="isCurrentlyOccupied"
+          inputId="isCurrentlyOccupied"
+        />
+        <label htmlFor="isCurrentlyOccupied" class="text-sm">
+          La construcción está actualmente ocupada
+        </label>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <p-checkbox
+          binary="true"
+          formControlName="hasTrappedPeople"
+          inputId="hasTrappedPeople"
+        />
+        <label htmlFor="hasTrappedPeople" class="text-sm">
+          Hay personas atrapadas
+        </label>
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-1">
+      <label for="estimatedResidents" class="text-sm font-medium">
+        Cantidad aproximada de residentes
+      </label>
+      <p-inputnumber
+        id="estimatedResidents"
+        formControlName="estimatedResidents"
+        [min]="0"
+        class="w-full"
+      />
+    </div>
+  </form>
+</div>

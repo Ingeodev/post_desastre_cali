@@ -30,7 +30,7 @@
     />
 
     <p-button
-      [label]="isOnLastStep() ? 'Finalizar' : 'Siguiente'"
+      [label]="isOnLastStep() ? finishLabel() : 'Siguiente'"
       [icon]="isOnLastStep() ? 'pi pi-check' : 'pi pi-arrow-right'"
       severity="primary"
       size="small"

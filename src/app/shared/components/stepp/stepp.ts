@@ -8,6 +8,9 @@ export type StepValidator = boolean | (() => boolean);
   templateUrl: './stepp.html',
   styleUrl: './stepp.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    '[style.display]': "active() ? 'block' : 'none'",
+  },
 })
 export class Stepp {
   readonly position = input.required<number>();

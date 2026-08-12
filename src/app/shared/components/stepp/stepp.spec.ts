@@ -15,6 +15,10 @@ class HostComponent {
   stepp!: Stepp;
 }
 
+function getWrapper(fixture: ComponentFixture<HostComponent>): HTMLElement {
+  return fixture.nativeElement.querySelector('[data-stepp-content]') as HTMLElement;
+}
+
 describe('Stepp', () => {
   let host: HostComponent;
   let fixture: ComponentFixture<HostComponent>;
@@ -43,14 +47,17 @@ describe('Stepp', () => {
     expect(typeof validator === 'function' ? validator() : validator).toBe(false);
   });
 
-  it('should hide the content while inactive', () => {
-    expect(fixture.nativeElement.querySelector('[data-content]')).toBeNull();
+  it('should not render the content while inactive', () => {
+    expect(getWrapper(fixture)).toBeNull();
   });
 
-  it('should show the content when active', () => {
+  it('should render the content and show it when active', () => {
+    expect(fixture.nativeElement.querySelector('[data-content]')).toBeNull();
+
     host.stepp.setActive(true);
     fixture.detectChanges();
 
     expect(fixture.nativeElement.querySelector('[data-content]')).not.toBeNull();
+    expect(getWrapper(fixture)).not.toBeNull();
   });
 });

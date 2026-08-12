@@ -20,6 +20,7 @@ import { Stepp } from '../stepp/stepp';
 })
 export class FormStepper {
   readonly title = input.required<string>();
+  readonly finishLabel = input('Finalizar');
 
   readonly cancel = output<void>();
   readonly finish = output<void>();
