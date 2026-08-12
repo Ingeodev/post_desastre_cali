@@ -15,6 +15,7 @@ import {
 } from '../../../../../core/supabase-models/supabase-type-aliases';
 import { NewReportStore } from '../../stores/new-report.store';
 import { ReportStore } from '../../stores/report.store';
+import { AttachmentManager } from "../attachment-manager/attachment-manager";
 
 @Component({
   selector: 'app-new-report-form',
@@ -26,7 +27,8 @@ import { ReportStore } from '../../stores/report.store';
     InputTextModule,
     SelectModule,
     TextareaModule,
-  ],
+    AttachmentManager
+],
   providers: [NewReportStore],
   templateUrl: './new-report-form.html',
   styleUrl: './new-report-form.css',
@@ -70,6 +72,7 @@ export class NewReportForm {
         numFloors: value.numFloors ?? null,
         reportedBy: value.reportedBy ?? null,
         seismicEventId: value.seismicEventId ?? null,
+        capturedAt: new Date().toISOString(),
 });
     });
   }

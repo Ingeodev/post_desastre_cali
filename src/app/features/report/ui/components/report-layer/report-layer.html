@@ -1,0 +1,14 @@
+@if (location()) {
+  <!-- report position -->
+  <mgl-geojson-source
+    id="report-location-marker"
+    [data]="markerSource()"
+  />
+
+  <mgl-layer
+    id="report-location-marker-circle"
+    type="circle"
+    source="user-location-marker"
+    [paint]="markerPaint"
+  />
+}

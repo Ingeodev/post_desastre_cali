@@ -1,35 +1,41 @@
 <div class="h-full relative">
   @if (store.showIndication()) {
   <div class="absolute w-full h-full z-[1100] ">
-    <app-map-indications/>
+    <app-map-indications />
   </div>
   }@else {
   <div class="absolute w-full h-full z-[1100] pointer-events-none flex justify-between p-4">
     <div class="flex flex-col gap-4">
 
-      @if (store.mode() === 'default') {
-      <p-button class=" pointer-events-auto" label="Marcar en el mapa" size="small" rounded raised (click)="enableCapturing()">
+      @if (store.mode() === 'default' && store.status() !== 'captured') {
+      <p-button class=" pointer-events-auto" label="Marcar en el mapa" size="small" rounded raised
+        (click)="enableCapturing()">
         <ng-template #icon>
           <ng-icon name="hugeCursorPointer02" />
         </ng-template>
       </p-button>
-
-      <p-button class=" pointer-events-auto" label="Usar ubicacion actual" severity="secondary" size="small" rounded raised (click)="setUserLocationAsReportLocation()">
+      @if( store.location()){
+      <p-button class=" pointer-events-auto" label="Usar ubicacion actual" severity="secondary" size="small" rounded
+        raised (click)="setUserLocationAsReportLocation()">
         <ng-template #icon>
           <ng-icon name="hugePinLocation03" />
         </ng-template>
       </p-button>
       }
+
+      }
     </div>
     <div class="flex flex-col gap-4">
-      @if (store.mode() === 'capturing') {
-      <p-button class=" pointer-events-auto" label="Aceptar" size="small" rounded raised (click)="setCenterAsReportLocation()">
+      @if (store.mode() === 'capturing' && store.status() !== 'captured') {
+      <p-button class=" pointer-events-auto" label="Aceptar" size="small" rounded raised
+        (click)="setCenterAsReportLocation()">
         <ng-template #icon>
           <ng-icon name="hugeCursorPointer02" />
         </ng-template>
       </p-button>
 
-      <p-button class=" pointer-events-auto" label="cancelar" severity="secondary" size="small" rounded raised (click)="cancelCapturing()">
+      <p-button class=" pointer-events-auto" label="cancelar" severity="secondary" size="small" rounded raised
+        (click)="cancelCapturing()">
         <ng-template #icon>
           <ng-icon name="hugePinLocation03" />
         </ng-template>
@@ -42,20 +48,19 @@
 
 
 
-  @if (store.mode() === 'capturing') {
+  @if (store.mode() === 'capturing' && store.status() !== 'captured') {
   <div class="absolute w-full h-full z-[1100] pointer-events-none flex justify-center items-center">
     <ng-icon size="2rem" color="red" name="matPointScanFillRound" />
   </div>
   }
 
 
-  <mgl-map
-   [mapStyle]="mapStyle" 
-   [center]="store.center()" 
-   [zoom]="zoom()" 
-  (mapDragStart)="onUserInteraction()"
-  (mapDragEnd)="onDragEnd($event)"
-  >
+  <mgl-map [mapStyle]="mapStyle" [center]="store.center()" [zoom]="zoom()" (mapDragStart)="onUserInteraction()"
+    (mapDragEnd)="onDragEnd($event)">
     <app-user-location-layer />
+
+    @if(store.status() === 'captured'){
+    <app-report-layer [location]="newReportStore.report().geom" />
+    }
   </mgl-map>
 </div>

@@ -1,0 +1,45 @@
+<div>
+    <label for="notes" class="text-sm font-medium">Fotografías</label>
+
+    <div class="flex w-full gap-3 overflow-x-auto snap-x snap-mandatory pb-2">
+        <!-- Primer elemento: agregar -->
+        <button type="button" class="relative min-w-[60%] aspect-square shrink-0 snap-start
+               overflow-hidden rounded-xl border-2 border-dashed
+               border-surface-300 bg-surface-50
+               flex flex-col items-center justify-center
+               text-surface-500 hover:bg-surface-100
+               transition-colors"
+               (click)="cameraInput.click()">
+            <i class="pi pi-camera text-3xl mb-2"></i>
+
+            <span class="text-sm font-medium">
+                Agregar foto
+            </span>
+        </button>
+
+        <!-- Fotografías -->
+        @for (i of items; track i) {
+        <div class="relative min-w-[60%] aspect-square shrink-0 snap-start
+                   overflow-hidden rounded-xl bg-surface-100">
+            <p>i</p>
+
+            <!-- Botón eliminar -->
+            <button type="button" class="absolute right-2 top-2 flex h-8 w-8
+                       items-center justify-center rounded-full
+                       bg-black/60 text-white backdrop-blur-sm
+                       hover:bg-black/80">
+                <i class="pi pi-times"></i>
+            </button>
+        </div>
+        }
+    </div>
+</div>
+
+      <input
+    #cameraInput
+    type="file"
+    accept="image/*"
+    capture="environment"
+    hidden
+    (change)="onPhotoSelected($event)"
+  />

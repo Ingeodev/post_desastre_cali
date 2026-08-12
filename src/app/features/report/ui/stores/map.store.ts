@@ -60,7 +60,6 @@ export const MapStore = signalStore(
 
             const location = result.value;
             patchState(store, {
-              status: 'captured',
               location,
               ...(store.following() ? { center: [location.lng, location.lat] } : {}),
             });
@@ -90,6 +89,12 @@ export const MapStore = signalStore(
       toggleIndication() {
         patchState(store, {
            showIndication: !store.showIndication() 
+        })
+      },
+
+      changeStatus(status: MapStatus) {
+        patchState(store, {
+          status: status
         })
       }
     };

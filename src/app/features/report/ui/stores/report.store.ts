@@ -24,6 +24,8 @@ import { GetDamageCategories } from '../../domain/use-cases/get-damage-categorie
 import { GetDataSources } from '../../domain/use-cases/get-data-sources';
 import { GetSeismicEvents } from '../../domain/use-cases/get-seismic-events';
 import { SaveAttachment } from '../../domain/use-cases/save-attachment';
+import { GetDamageCatalog } from '../../domain/use-cases/get-damage-catalog';
+import { DamagePatterns } from '../../../../core/supabase-models/supabase-type-aliases';
 
 const REPORT_ID = '1';
 
@@ -37,6 +39,7 @@ type ReportsState = {
   constructionTypes: ConstructionTypes[];
   dataSources: DataSources[];
   currentSeismicEvent: SeismicEvents | null;
+  damageCatalog: DamagePatterns[]
 };
 
 const initialState: ReportsState = {
@@ -49,6 +52,7 @@ const initialState: ReportsState = {
   constructionTypes: [],
   dataSources: [],
   currentSeismicEvent: null,
+  damageCatalog: []
 };
 
 export const ReportStore = signalStore(
@@ -64,6 +68,7 @@ export const ReportStore = signalStore(
       getConstructionTypes: inject(GetConstructionTypes),
       getDataSources: inject(GetDataSources),
       getSeismicEvents: inject(GetSeismicEvents),
+      getDamageCatalog: inject(GetDamageCatalog)
     };
   }),
   withMethods((store) => ({
@@ -117,6 +122,13 @@ export const ReportStore = signalStore(
             }
           }),
         );
+        catalogsSubscription.add(
+          store.getDamageCatalog.execute().subscribe((damageCatalog) => {
+            if(damageCatalog.length > 0) {
+              patchState(store, { damageCatalog: damageCatalog});
+            }
+          })
+        )
       },
     };
   }),

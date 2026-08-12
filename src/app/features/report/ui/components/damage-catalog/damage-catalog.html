@@ -1,0 +1,14 @@
+<div class="p-4">
+  <label for="constructionTypeId" class="text-sm font-medium">Seleccione los daños mas parecidos a los observados en la construcción</label>
+  <div class="grid grid-cols-2 gap-3">
+    @for (item of items; track item.id) {
+        <app-damage-catalog-item
+            [item]="item"
+            [selected]="isSelected(item)"
+            (selectedChange)="toggleSelection($event)"
+        />
+    }
+</div>
+</div>
+
+

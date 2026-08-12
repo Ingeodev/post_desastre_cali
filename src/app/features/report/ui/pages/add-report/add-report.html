@@ -3,23 +3,13 @@
     <app-map-form/>
   </div>
 
+  
+  <app-damage-catalog
+      [items]="store.damageCatalog()"
+      (selectedItemsChange)="onDamagePatternsChange($event)"
+  />
+
+
   <app-new-report-form/>
 
-  <input
-    #cameraInput
-    type="file"
-    accept="image/*"
-    capture="environment"
-    hidden
-    (change)="onPhotoSelected($event)"
-  />
 </div>
-
-<app-fab
-  icon="pi pi-camera"
-  size="large"
-  severity="primary"
-  position="bottom-end"
-  ariaLabel="Tomar foto"
-  (clicked)="cameraInput.click()"
-/>

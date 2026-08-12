@@ -7,6 +7,7 @@ import {
 } from '@ngrx/signals';
 import { DamageInspectionsInsert } from '../../../../core/supabase-models/supabase-type-aliases';
 import { MapStore } from './map.store';
+import { Photo } from '../../domain/models/photo.model';
 
 export interface NewReportDraft {
   addressText: string;
@@ -19,6 +20,7 @@ export interface NewReportDraft {
   numFloors: number | null;
   reportedBy: string;
   seismicEventId: string | null;
+  geom: { type: 'Point', coordinates: [number, number]}| null
 }
 
 const initialDraft: NewReportDraft = {
@@ -32,38 +34,55 @@ const initialDraft: NewReportDraft = {
   numFloors: null,
   reportedBy: '',
   seismicEventId: null,
+  geom: null
 };
 
+interface NewReportState {
+  report: NewReportDraft
+  attachments: Photo[]
+}
+
+const initilState = {
+  report: initialDraft,
+  attachments: [] as Photo[],
+}
+
 export const NewReportStore = signalStore(
-  withState<NewReportDraft>(initialDraft),
+  withState<NewReportState>(initilState),
   withMethods((store) => {
     const mapStore = inject(MapStore);
 
     return {
       updateDraft(partial: Partial<NewReportDraft>): void {
-        patchState(store, partial);
+        patchState(store, {report: { ...store.report(), ...partial}});
       },
 
       resetDraft(): void {
-        patchState(store, initialDraft);
+        patchState(store, {report: initialDraft});
+      },
+
+      setCoordinates(coordinates: [number, number] ) {
+        patchState(store, { report: {
+          ...store.report(),
+          geom: { type: 'Point', coordinates: coordinates},
+        }})
       },
 
       buildReport(): DamageInspectionsInsert {
-        const [lng, lat] = mapStore.center();
 
         return {
-          captured_at: store.capturedAt(),
-          damage_category_id: store.damageCategoryId() ?? 0,
-          data_source_id: store.dataSourceId() ?? 0,
-          seismic_event_id: store.seismicEventId() ?? '',
-          construction_type_id: store.constructionTypeId(),
+          captured_at: store.report.capturedAt(),
+          damage_category_id: store.report.damageCategoryId() ?? 0,
+          data_source_id: store.report.dataSourceId() ?? 0,
+          seismic_event_id: store.report.seismicEventId() ?? '',
+          construction_type_id: store.report.constructionTypeId(),
           device_local_id: crypto.randomUUID(),
-          geom: { type: 'Point', coordinates: [lng, lat] },
-          address_text: store.addressText() || null,
-          approx_year_built: store.approxYearBuilt(),
-          notes: store.notes() || null,
-          num_floors: store.numFloors(),
-          reported_by: store.reportedBy() || null,
+          geom: store.report.geom(),
+          address_text: store.report.addressText() || null,
+          approx_year_built: store.report.approxYearBuilt(),
+          notes: store.report.notes() || null,
+          num_floors: store.report.numFloors(),
+          reported_by: store.report.reportedBy() || null,
         };
       },
     };
