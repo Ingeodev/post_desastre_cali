@@ -1,9 +1,32 @@
 <div>
-    <label for="notes" class="text-sm font-medium">Fotografías</label>
+    <label class="text-sm font-medium">Fotografías</label>
 
     <div class="flex w-full gap-3 overflow-x-auto snap-x snap-mandatory pb-2">
-        <!-- Primer elemento: agregar -->
-        <button type="button" class="relative min-w-[60%] aspect-square shrink-0 snap-start
+
+        @for (photo of newReportStore.photos(); track photo.id) {
+        <div class="relative min-w-[60%] aspect-square shrink-0 snap-start
+                   overflow-hidden rounded-xl bg-surface-100">
+            <img
+                [src]="photoUrl(photo)"
+                alt="Foto del reporte"
+                class="h-full w-full object-cover"
+            />
+
+            <button
+                type="button"
+                class="absolute right-2 top-2 flex h-8 w-8 items-center
+                       justify-center rounded-full bg-black/60 text-white
+                       backdrop-blur-sm hover:bg-black/80"
+                (click)="onRemovePhoto(photo)"
+            >
+                <i class="pi pi-times"></i>
+            </button>
+        </div>
+        }@empty {
+        <p class="text-sm text-surface-500">No hay fotos aún</p>
+        }
+
+                <button type="button" class="relative min-w-[60%] aspect-square shrink-0 snap-start
                overflow-hidden rounded-xl border-2 border-dashed
                border-surface-300 bg-surface-50
                flex flex-col items-center justify-center
@@ -16,30 +39,14 @@
                 Agregar foto
             </span>
         </button>
-
-        <!-- Fotografías -->
-        @for (i of items; track i) {
-        <div class="relative min-w-[60%] aspect-square shrink-0 snap-start
-                   overflow-hidden rounded-xl bg-surface-100">
-            <p>i</p>
-
-            <!-- Botón eliminar -->
-            <button type="button" class="absolute right-2 top-2 flex h-8 w-8
-                       items-center justify-center rounded-full
-                       bg-black/60 text-white backdrop-blur-sm
-                       hover:bg-black/80">
-                <i class="pi pi-times"></i>
-            </button>
-        </div>
-        }
     </div>
 </div>
 
-      <input
+<input
     #cameraInput
     type="file"
     accept="image/*"
     capture="environment"
     hidden
     (change)="onPhotoSelected($event)"
-  />
+/>

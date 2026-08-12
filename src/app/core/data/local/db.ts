@@ -224,7 +224,7 @@ export class IndexDb {
       ) {
         database.createObjectStore(
           storeName,
-          configuration,
+          configuration as IDBObjectStoreParameters,
         );
       }
     }

@@ -1,17 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { DamageCatalog } from './damage-catalog';
+import { DamagePatternCatalogComponent } from './damage-catalog';
 
-describe('DamageCatalog', () => {
-  let component: DamageCatalog;
-  let fixture: ComponentFixture<DamageCatalog>;
+describe('DamagePatternCatalogComponent', () => {
+  let component: DamagePatternCatalogComponent;
+  let fixture: ComponentFixture<DamagePatternCatalogComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [DamageCatalog],
+      imports: [DamagePatternCatalogComponent],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(DamageCatalog);
+    fixture = TestBed.createComponent(DamagePatternCatalogComponent);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

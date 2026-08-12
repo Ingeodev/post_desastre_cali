@@ -14,25 +14,17 @@ import {
   DataSources,
   SeismicEvents,
 } from '../../../../core/supabase-models/supabase-type-aliases';
-import { IndexDb } from '../../../../core/data/local/db';
-import { AttachmentRepository } from '../../data/repositories/attachment.repository';
-import { Photo } from '../../domain/models/photo.model';
 import { Report } from '../../domain/models/report.model';
-import { GetAttachments } from '../../domain/use-cases/get-attachments';
 import { GetConstructionTypes } from '../../domain/use-cases/get-construction-types';
 import { GetDamageCategories } from '../../domain/use-cases/get-damage-categories';
 import { GetDataSources } from '../../domain/use-cases/get-data-sources';
 import { GetSeismicEvents } from '../../domain/use-cases/get-seismic-events';
-import { SaveAttachment } from '../../domain/use-cases/save-attachment';
 import { GetDamageCatalog } from '../../domain/use-cases/get-damage-catalog';
 import { DamagePatterns } from '../../../../core/supabase-models/supabase-type-aliases';
-
-const REPORT_ID = '1';
 
 type ReportsState = {
   reports: Report[];
   selectedReport: string | null;
-  photos: Photo[];
   isLoading: boolean;
   filter: { query: string; order: 'asc' | 'desc' };
   damageCategories: DamageCategories[];
@@ -45,7 +37,6 @@ type ReportsState = {
 const initialState: ReportsState = {
   reports: [],
   selectedReport: null,
-  photos: [],
   isLoading: false,
   filter: { query: '', order: 'asc' },
   damageCategories: [],
@@ -58,37 +49,12 @@ const initialState: ReportsState = {
 export const ReportStore = signalStore(
   { providedIn: 'root' },
   withState(initialState),
-  withProps(() => {
-    const repository = new AttachmentRepository(new IndexDb());
-
-    return {
-      saveAttachment: new SaveAttachment(repository),
-      getAttachments: new GetAttachments(repository),
-      getDamageCategories: inject(GetDamageCategories),
-      getConstructionTypes: inject(GetConstructionTypes),
-      getDataSources: inject(GetDataSources),
-      getSeismicEvents: inject(GetSeismicEvents),
-      getDamageCatalog: inject(GetDamageCatalog)
-    };
-  }),
-  withMethods((store) => ({
-    async loadPhotos(): Promise<void> {
-      const photos = await store.getAttachments.execute(REPORT_ID);
-
-      patchState(store, { photos });
-    },
-  })),
-  withMethods((store) => ({
-    async savePhoto(file: Blob): Promise<void> {
-      const photo: Photo = {
-        id: crypto.randomUUID(),
-        url: '',
-        file,
-      };
-
-      await store.saveAttachment.execute(photo, REPORT_ID);
-      await store.loadPhotos();
-    },
+  withProps(() => ({
+    getDamageCategories: inject(GetDamageCategories),
+    getConstructionTypes: inject(GetConstructionTypes),
+    getDataSources: inject(GetDataSources),
+    getSeismicEvents: inject(GetSeismicEvents),
+    getDamageCatalog: inject(GetDamageCatalog),
   })),
   withMethods((store) => {
     let catalogsSubscription: Subscription | undefined;

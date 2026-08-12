@@ -7,7 +7,8 @@ import {
 } from '@ngrx/signals';
 import { DamageInspectionsInsert } from '../../../../core/supabase-models/supabase-type-aliases';
 import { MapStore } from './map.store';
-import { Photo } from '../../domain/models/photo.model';
+import { InspectionPhotoEntity } from '../../data/entities/inspection-photo.entity';
+import { resizePhoto, toLocalPhoto } from '../../application/mappers/photo.mapper';
 
 export interface NewReportDraft {
   addressText: string;
@@ -39,12 +40,12 @@ const initialDraft: NewReportDraft = {
 
 interface NewReportState {
   report: NewReportDraft
-  attachments: Photo[]
+  photos: InspectionPhotoEntity[]
 }
 
 const initilState = {
   report: initialDraft,
-  attachments: [] as Photo[],
+  photos: [] as InspectionPhotoEntity[],
 }
 
 export const NewReportStore = signalStore(
@@ -66,6 +67,25 @@ export const NewReportStore = signalStore(
           ...store.report(),
           geom: { type: 'Point', coordinates: coordinates},
         }})
+      },
+
+      async addPhoto(blob: Blob): Promise<void> {
+        const resized = await resizePhoto(blob);
+
+        const photo = toLocalPhoto({
+          id: crypto.randomUUID(),
+          inspectionId: null,
+          blob: resized,
+          sequence: store.photos().length,
+        });
+
+        patchState(store, { photos: [...store.photos(), photo]});
+      },
+
+      removePhoto(id: string): void {
+        patchState(store, {
+          photos: store.photos().filter(photo => photo.id !== id),
+        });
       },
 
       buildReport(): DamageInspectionsInsert {

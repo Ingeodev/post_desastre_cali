@@ -19,6 +19,60 @@ export const INDEX_DB_SCHEMA = {
     },
   },
 
+  inspections: {
+    keyPath: 'id',
+    indexes: {
+      syncedAt: {
+        keyPath: 'syncedAt',
+        options: {
+          unique: false,
+        },
+      },
+    },
+  },
+
+  inspectionPhotos: {
+    keyPath: 'id',
+    indexes: {
+      inspectionId: {
+        keyPath: 'inspectionId',
+        options: {
+          unique: false,
+        },
+      },
+      syncStatus: {
+        keyPath: 'syncStatus',
+        options: {
+          unique: false,
+        },
+      },
+    },
+  },
+
+  inspectionOccupancy: {
+    keyPath: 'id',
+    indexes: {
+      inspectionId: {
+        keyPath: 'inspectionId',
+        options: {
+          unique: false,
+        },
+      },
+    },
+  },
+
+  inspectionPatterns: {
+    keyPath: ['inspectionId', 'patternId'],
+    indexes: {
+      inspectionId: {
+        keyPath: 'inspectionId',
+        options: {
+          unique: false,
+        },
+      },
+    },
+  },
+
   syncQueue: {
     keyPath: 'id',
     indexes: {
