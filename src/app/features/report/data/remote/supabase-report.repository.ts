@@ -60,11 +60,13 @@ export class SupabaseReportRepository implements ReportRepository {
     return inspections.map((inspection) => ({
       id: inspection.id,
       addressText: inspection.addressText,
+      damageCategoryId: inspection.damageCategoryId,
       damageCategoryLabel:
         labelByCategoryId.get(inspection.damageCategoryId) ?? null,
       capturedAt: inspection.capturedAt,
       notes: inspection.notes,
       firstPhotoUrl: firstPhotoUrlByInspectionId.get(inspection.id) ?? null,
+      source: 'remote',
     }));
   }
 

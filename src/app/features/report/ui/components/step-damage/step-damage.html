@@ -9,7 +9,12 @@
     </p>
   </header>
 
-  <form [formGroup]="damageForm" class="flex flex-col gap-4">
+  <app-damage-catalog
+    [items]="reportStore.damageCatalog()"
+    (selectedItemsChange)="onPatternsChange($event)"
+  />
+
+    <form [formGroup]="damageForm" class="flex flex-col gap-4">
     <div class="flex flex-col gap-1">
       <label for="damageCategoryId" class="text-sm font-medium">
         Nivel de daño percibido
@@ -25,9 +30,4 @@
       />
     </div>
   </form>
-
-  <app-damage-catalog
-    [items]="reportStore.damageCatalog()"
-    (selectedItemsChange)="onPatternsChange($event)"
-  />
 </div>

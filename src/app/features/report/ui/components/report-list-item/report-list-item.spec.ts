@@ -11,10 +11,12 @@ describe('ReportListItem', () => {
   const summary: ReportSummary = {
     id: 'abc',
     addressText: 'Calle 1',
+    damageCategoryId: 2,
     damageCategoryLabel: 'Daño alto',
     capturedAt: '2026-08-10T00:00:00Z',
     notes: 'Grietas en muros',
     firstPhotoUrl: 'https://example.com/photo.png',
+    source: 'local',
   };
 
   beforeEach(async () => {

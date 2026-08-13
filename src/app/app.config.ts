@@ -9,14 +9,12 @@ import { provideServiceWorker } from '@angular/service-worker';
 import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeuix/themes/aura';
 import { IngeodevPreset } from '../ingeodev.theme';
-import { IndexDb } from './core/data/local/db';
 import { SupabaseAuthService } from './core/data/supabase/supabase-auth.service';
 import { GlobalStore } from './shared/stores/global.store';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     MessageService,
-    { provide: IndexDb, useClass: IndexDb },
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
     provideAppInitializer(() => {

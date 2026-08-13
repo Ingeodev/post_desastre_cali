@@ -1,4 +1,5 @@
 import { Injectable, signal } from '@angular/core';
+import { Subject } from 'rxjs';
 import { IndexedDbReportRepository } from '../../data/local/indexeddb-report.repository';
 import { SupabaseInspectionRepository } from '../../data/remote/supabase-inspection.repository';
 import { SupabaseInspectionOccupancyRepository } from '../../data/remote/supabase-occupancy.repository';
@@ -14,6 +15,7 @@ export interface SyncProgress {
 @Injectable({ providedIn: 'root' })
 export class SyncReportsUseCase {
   readonly progress = signal<SyncProgress>({ synced: 0, total: 0 });
+  readonly changed$ = new Subject<void>();
 
   constructor(
     private readonly localRepository: IndexedDbReportRepository,
@@ -40,12 +42,16 @@ export class SyncReportsUseCase {
 
     this.progress.set({ synced: 0, total: pending.length });
 
-    for (const report of pending) {
-      await this.syncReport(report);
-      this.progress.update((progress) => ({
-        ...progress,
-        synced: progress.synced + 1,
-      }));
+    try {
+      for (const report of pending) {
+        await this.syncReport(report);
+        this.progress.update((progress) => ({
+          ...progress,
+          synced: progress.synced + 1,
+        }));
+      }
+    } finally {
+      this.changed$.next();
     }
   }
 

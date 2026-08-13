@@ -14,18 +14,22 @@ describe('ReportList', () => {
     {
       id: '1',
       addressText: 'Calle 1',
+      damageCategoryId: 2,
       damageCategoryLabel: 'Daño alto',
       capturedAt: '2026-08-10T00:00:00Z',
       notes: null,
       firstPhotoUrl: null,
+      source: 'remote',
     },
     {
       id: '2',
       addressText: 'Calle 2',
+      damageCategoryId: 3,
       damageCategoryLabel: 'Daño leve',
       capturedAt: '2026-08-11T00:00:00Z',
       notes: null,
       firstPhotoUrl: null,
+      source: 'remote',
     },
   ];
 

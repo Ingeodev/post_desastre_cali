@@ -8,6 +8,8 @@ import {
 } from '@ngrx/signals';
 import { ReportProfile } from '../../domain/models/report-profile.model';
 import { GetReportProfile } from '../../domain/use-cases/get-report-profile';
+import { GetLocalReportProfile } from '../../domain/use-cases/get-local-report-profile';
+import { ReportStore } from './report.store';
 
 interface ProfileState {
   profile: ReportProfile | null;
@@ -25,7 +27,9 @@ export const ProfileStore = signalStore(
   { providedIn: 'root' },
   withState(initialState),
   withProps(() => ({
+    reportStore: inject(ReportStore),
     getReportProfile: inject(GetReportProfile),
+    getLocalReportProfile: inject(GetLocalReportProfile),
   })),
   withMethods((store) => ({
     async load(id: string): Promise<void> {
@@ -36,7 +40,24 @@ export const ProfileStore = signalStore(
       patchState(store, { isLoading: true, error: null });
 
       try {
-        const profile = await store.getReportProfile.execute(id);
+        const hasData =
+          store.reportStore.localSummaries().length > 0 ||
+          store.reportStore.remoteSummaries().length > 0;
+
+        if (!hasData) {
+          await store.reportStore.loadSummaries();
+        }
+
+        const summary =
+          store.reportStore.localSummaries().find((s) => s.id === id) ??
+          store.reportStore.remoteSummaries().find((s) => s.id === id);
+
+        const source = summary?.source ?? 'remote';
+
+        const profile =
+          source === 'local'
+            ? await store.getLocalReportProfile.execute(id)
+            : await store.getReportProfile.execute(id);
 
         if (!profile) {
           patchState(store, {

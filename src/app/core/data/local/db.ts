@@ -1,3 +1,4 @@
+import { Injectable } from '@angular/core';
 import { INDEX_DB_NAME, INDEX_DB_SCHEMA } from "./db-shcema";
 import { IndexDbStore } from "./db-stores";
 
@@ -6,6 +7,7 @@ export interface IndexDbRecord {
   value: object;
 }
 
+@Injectable({ providedIn: 'root' })
 export class IndexDb {
   private database?: IDBDatabase;
   private opening?: Promise<IDBDatabase>;

@@ -1,13 +1,22 @@
 import { TestBed } from '@angular/core/testing';
 import { vi } from 'vitest';
 import { ProfileStore } from './profile.store';
+import { ReportStore } from './report.store';
 import { GetReportProfile } from '../../domain/use-cases/get-report-profile';
+import { GetLocalReportProfile } from '../../domain/use-cases/get-local-report-profile';
 import { ReportProfile } from '../../domain/models/report-profile.model';
+import { ReportSummary } from '../../domain/models/report-summary.model';
 import { InspectionEntity } from '../../data/entities/inspection.entity';
 
 describe('ProfileStore', () => {
   let store: InstanceType<typeof ProfileStore>;
   let getReportProfile: { execute: ReturnType<typeof vi.fn> };
+  let getLocalReportProfile: { execute: ReturnType<typeof vi.fn> };
+  let reportStoreMock: {
+    localSummaries: () => ReportSummary[];
+    remoteSummaries: () => ReportSummary[];
+    loadSummaries: ReturnType<typeof vi.fn>;
+  };
 
   function buildProfile(): ReportProfile {
     const inspection: InspectionEntity = {
@@ -32,12 +41,36 @@ describe('ProfileStore', () => {
     return { inspection, occupancy: null, patterns: [], photos: [] };
   }
 
+  function buildSummary(source: 'local' | 'remote'): ReportSummary {
+    return {
+      id: 'abc',
+      addressText: 'Calle 1',
+      damageCategoryId: 2,
+      damageCategoryLabel: null,
+      capturedAt: '2026-08-10T00:00:00Z',
+      notes: null,
+      firstPhotoUrl: null,
+      source,
+    };
+  }
+
   beforeEach(() => {
     getReportProfile = { execute: vi.fn() };
+    getLocalReportProfile = { execute: vi.fn() };
+    reportStoreMock = {
+      localSummaries: () => [],
+      remoteSummaries: () => [],
+      loadSummaries: vi.fn().mockResolvedValue(undefined),
+    };
 
     TestBed.configureTestingModule({
       providers: [
         { provide: GetReportProfile, useValue: getReportProfile },
+        {
+          provide: GetLocalReportProfile,
+          useValue: getLocalReportProfile,
+        },
+        { provide: ReportStore, useValue: reportStoreMock },
       ],
     });
 
@@ -60,6 +93,17 @@ describe('ProfileStore', () => {
     expect(store.profile()).toEqual(profile);
     expect(store.isLoading()).toBe(false);
     expect(store.error()).toBeNull();
+  });
+
+  it('should load the local profile when the summary is local', async () => {
+    reportStoreMock.localSummaries = () => [buildSummary('local')];
+    const profile = buildProfile();
+    getLocalReportProfile.execute.mockResolvedValue(profile);
+
+    await store.load('abc');
+
+    expect(getLocalReportProfile.execute).toHaveBeenCalledWith('abc');
+    expect(store.profile()).toEqual(profile);
   });
 
   it('should set an error when the profile does not exist', async () => {

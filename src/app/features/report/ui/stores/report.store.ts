@@ -1,7 +1,8 @@
-import { inject } from '@angular/core';
+import { computed, inject } from '@angular/core';
 import {
   patchState,
   signalStore,
+  withComputed,
   withHooks,
   withMethods,
   withProps,
@@ -15,18 +16,23 @@ import {
   DataSources,
   SeismicEvents,
 } from '../../../../core/supabase-models/supabase-type-aliases';
-import { ReportSummary } from '../../domain/models/report-summary.model';
+import { IndexedDbReportRepository } from '../../data/local/indexeddb-report.repository';
+import { ReportSource, ReportSummary } from '../../domain/models/report-summary.model';
 import { GetConstructionTypes } from '../../domain/use-cases/get-construction-types';
 import { GetDamageCategories } from '../../domain/use-cases/get-damage-categories';
 import { GetDataSources } from '../../domain/use-cases/get-data-sources';
 import { GetSeismicEvents } from '../../../../shared/use-cases/get-seismic-events';
 import { GetDamageCatalog } from '../../domain/use-cases/get-damage-catalog';
 import { GetReportSummaries } from '../../domain/use-cases/get-report-summaries';
+import { GetLocalReportSummaries } from '../../domain/use-cases/get-local-report-summaries';
+import { SyncReportsUseCase } from '../../domain/use-cases/sync-reports';
 
 type ReportsState = {
-  summaries: ReportSummary[];
+  localSummaries: ReportSummary[];
+  remoteSummaries: ReportSummary[];
   selectedReport: ReportSummary | null;
   isLoading: boolean;
+  activeSource: ReportSource;
   filter: { query: string; order: 'asc' | 'desc' };
   damageCategories: DamageCategories[];
   constructionTypes: ConstructionTypes[];
@@ -36,9 +42,11 @@ type ReportsState = {
 };
 
 const initialState: ReportsState = {
-  summaries: [],
+  localSummaries: [],
+  remoteSummaries: [],
   selectedReport: null,
   isLoading: false,
+  activeSource: 'local',
   filter: { query: '', order: 'asc' },
   damageCategories: [],
   constructionTypes: [],
@@ -57,6 +65,26 @@ export const ReportStore = signalStore(
     getSeismicEvents: inject(GetSeismicEvents),
     getDamageCatalog: inject(GetDamageCatalog),
     getReportSummaries: inject(GetReportSummaries),
+    getLocalReportSummaries: inject(GetLocalReportSummaries),
+    localReportRepository: inject(IndexedDbReportRepository),
+    syncReports: inject(SyncReportsUseCase),
+  })),
+  withComputed((store) => ({
+    summaries: computed<ReportSummary[]>(() => {
+      if (store.activeSource() === 'remote') {
+        return store.remoteSummaries();
+      }
+
+      return store.localSummaries().map((summary) => ({
+        ...summary,
+        damageCategoryLabel:
+          store.damageCategories().find(
+            (category) => category.id === summary.damageCategoryId,
+          )?.label ?? summary.damageCategoryLabel,
+      }));
+    }),
+    localCount: computed(() => store.localSummaries().length),
+    remoteCount: computed(() => store.remoteSummaries().length),
   })),
   withMethods((store) => {
     let catalogsSubscription: Subscription | undefined;
@@ -99,30 +127,62 @@ export const ReportStore = signalStore(
         );
       },
 
-      async loadSummaries(): Promise<void> {
-        if (store.isLoading()) {
-          return;
-        }
+      setSource(source: ReportSource): void {
+        patchState(store, { activeSource: source });
+      },
 
-        patchState(store, { isLoading: true });
-
+      async loadLocalSummaries(): Promise<void> {
         try {
-          const summaries = await store.getReportSummaries.execute();
-          patchState(store, { summaries, isLoading: false });
+          const localSummaries = await store.getLocalReportSummaries.execute();
+          patchState(store, { localSummaries });
         } catch (error) {
-          console.error('Failed to load report summaries', error);
-          patchState(store, { isLoading: false });
+          console.error('Failed to load local report summaries', error);
         }
       },
 
-      selectReport(summary: ReportSummary): void {
-        patchState(store, { selectedReport: summary });
+      async loadRemoteSummaries(): Promise<void> {
+        try {
+          const remoteSummaries = await store.getReportSummaries.execute();
+          patchState(store, { remoteSummaries });
+        } catch (error) {
+          console.error('Failed to load remote report summaries', error);
+        }
       },
     };
   }),
+  withMethods((store) => ({
+    async loadSummaries(): Promise<void> {
+      if (store.isLoading()) {
+        return;
+      }
+
+      patchState(store, { isLoading: true });
+
+      try {
+        await Promise.all([
+          store.loadLocalSummaries(),
+          store.loadRemoteSummaries(),
+        ]);
+      } finally {
+        patchState(store, { isLoading: false });
+      }
+    },
+
+    selectReport(summary: ReportSummary): void {
+      patchState(store, { selectedReport: summary });
+    },
+  })),
   withHooks({
     onInit(store) {
       store.loadCatalogs();
+
+      store.localReportRepository.changes$.subscribe(() => {
+        void store.loadLocalSummaries();
+      });
+
+      store.syncReports.changed$.subscribe(() => {
+        void store.loadRemoteSummaries();
+      });
     },
   }),
 );

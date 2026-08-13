@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { Subject } from 'rxjs';
 import { IndexDb, IndexDbRecord } from '../../../../core/data/local/db';
 import { INDEX_DB_STORES } from '../../../../core/data/local/db-stores';
 import { ReportEntities } from '../../domain/models/report-entities.model';
@@ -10,6 +11,8 @@ import { IndexedDbInspectionPhotoRepository } from './indexeddb-photo.repository
 
 @Injectable({ providedIn: 'root' })
 export class IndexedDbReportRepository {
+  readonly changes$ = new Subject<void>();
+
   constructor(
     private readonly db: IndexDb,
     private readonly inspectionRepository: IndexedDbInspectionRepository,
@@ -40,6 +43,8 @@ export class IndexedDbReportRepository {
     ];
 
     await this.db.putInTransaction(records);
+
+    this.changes$.next();
   }
 
   async getById(id: string): Promise<ReportEntities | undefined> {
@@ -68,6 +73,8 @@ export class IndexedDbReportRepository {
     for (const photo of photos) {
       await this.photoRepository.deleteLocal(photo.id);
     }
+
+    this.changes$.next();
   }
 
   private async hydrate(inspection: InspectionEntity): Promise<ReportEntities> {
