@@ -51,11 +51,39 @@ export function wkbToGeoJsonPoint(wkb: string | null): GeoJsonPoint | null {
   return { type: 'Point', coordinates: [x, y] };
 }
 
+export function geometryToGeoJsonPoint(
+  geom: string | GeoJsonPoint | null | undefined,
+): GeoJsonPoint | null {
+  if (!geom) {
+    return null;
+  }
+
+  if (typeof geom === 'string') {
+    return wkbToGeoJsonPoint(geom);
+  }
+
+  if (
+    geom.type === 'Point' &&
+    Array.isArray(geom.coordinates) &&
+    geom.coordinates.length >= 2
+  ) {
+    return {
+      type: 'Point',
+      coordinates: [
+        Number(geom.coordinates[0]),
+        Number(geom.coordinates[1]),
+      ],
+    };
+  }
+
+  return null;
+}
+
 export function toInspectionEntity(input: {
   id: string;
   deviceLocalId: string;
   capturedAt: string;
-  geom: string | null;
+  geom: string | GeoJsonPoint | null | undefined;
   damageCategoryId: number;
   dataSourceId: number;
   seismicEventId: string;
@@ -71,7 +99,7 @@ export function toInspectionEntity(input: {
 }): InspectionEntity {
   return {
     ...input,
-    geom: wkbToGeoJsonPoint(input.geom),
+    geom: geometryToGeoJsonPoint(input.geom),
   };
 }
 

@@ -5,7 +5,7 @@ import {
   DamageInspectionsInsert,
 } from '../../../../core/supabase-models/supabase-type-aliases';
 import { InspectionRepository, InspectionInput } from '../../domain/interfaces/inspection.repository';
-import { InspectionEntity } from '../entities/inspection.entity';
+import { InspectionEntity, GeoJsonPoint } from '../entities/inspection.entity';
 import { toInspectionEntity, toRemoteInput } from '../../application/mappers/geom.mapper';
 
 @Injectable({ providedIn: 'root' })
@@ -123,7 +123,7 @@ export class SupabaseInspectionRepository implements InspectionRepository {
       id: row.id,
       deviceLocalId: row.device_local_id,
       capturedAt: row.captured_at,
-      geom: typeof row.geom === 'string' ? row.geom : null,
+      geom: row.geom as string | GeoJsonPoint | null | undefined,
       damageCategoryId: row.damage_category_id,
       dataSourceId: row.data_source_id,
       seismicEventId: row.seismic_event_id,
