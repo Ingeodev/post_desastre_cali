@@ -10,13 +10,7 @@
       <span class="font-semibold text-zinc-900 dark:text-zinc-50">EDES</span>
     </div>
     <div class="flex items-center gap-1">
-      <button
-        type="button"
-        class="inline-flex h-10 w-10 items-center justify-center rounded-full text-zinc-500 transition-colors hover:bg-zinc-200/70 hover:text-zinc-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-zinc-400 dark:hover:bg-zinc-800/70 dark:hover:text-zinc-50"
-        aria-label="Alertas"
-      >
-        <ng-icon name="matInfoOutline" />
-      </button>
+
 
       @if (globalStore.isSyncing()) {
         <button
@@ -25,18 +19,25 @@
           aria-label="Sincronizando"
           disabled
         >
-          <span class="pi pi-refresh pi-spin text-lg" aria-hidden="true"></span>
+          <ng-icon strokeWidth="1.5" size="1.5rem"  name="hugeCloudUpload" />
         </button>
       } @else if (globalStore.canSync()) {
         <button
           type="button"
-          class="inline-flex h-10 w-10 items-center justify-center rounded-full text-zinc-500 transition-colors hover:bg-zinc-200/70 hover:text-zinc-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-zinc-400 dark:hover:bg-zinc-800/70 dark:hover:text-zinc-50"
+          class="inline-flex h-10 w-10 items-center justify-center rounded-full text-zinc-800 transition-colors hover:bg-zinc-200/70 hover:text-zinc-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-zinc-400 dark:hover:bg-zinc-800/70 dark:hover:text-zinc-50"
           aria-label="Sincronizar"
           (click)="globalStore.syncNow()"
         >
-          <ng-icon name="hugeCloudUpload" />
+          <ng-icon strokeWidth="1.5" size="1.5rem" name="hugeCloudUpload" />
         </button>
       }
+            <button
+        type="button"
+        class="inline-flex h-10 w-10 items-center justify-center rounded-full text-zinc-800 transition-colors hover:bg-zinc-200/70 hover:text-zinc-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-zinc-400 dark:hover:bg-zinc-800/70 dark:hover:text-zinc-50"
+        aria-label="Alertas"
+      >
+        <ng-icon strokeWidth="1.5" size="1.5rem"  name="matInfoOutline" />
+      </button>
     </div>
   </div>
 </header>
