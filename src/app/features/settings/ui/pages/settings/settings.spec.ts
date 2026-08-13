@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
+import { provideRouter, Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { vi } from 'vitest';
 import { Settings } from './settings';
@@ -32,6 +33,7 @@ describe('Settings', () => {
   let component: Settings;
   let fixture: ComponentFixture<Settings>;
   let saveSettings: ReturnType<typeof vi.fn>;
+  let navigate: ReturnType<typeof vi.fn>;
 
   beforeEach(async () => {
     saveSettings = vi.fn().mockResolvedValue(undefined);
@@ -39,6 +41,7 @@ describe('Settings', () => {
     await TestBed.configureTestingModule({
       imports: [Settings],
       providers: [
+        provideRouter([]),
         MessageService,
         {
           provide: SettingsStore,
@@ -54,6 +57,7 @@ describe('Settings', () => {
 
     fixture = TestBed.createComponent(Settings);
     component = fixture.componentInstance;
+    navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
     await fixture.whenStable();
   });
 
@@ -65,6 +69,12 @@ describe('Settings', () => {
     const html = fixture.nativeElement as HTMLElement;
     expect(html.querySelector('#email')).not.toBeNull();
     expect(html.querySelector('p-select')).not.toBeNull();
+  });
+
+  it('should show the info message above the form', () => {
+    const message = fixture.nativeElement.querySelector('p-message') as HTMLElement;
+    expect(message).not.toBeNull();
+    expect(message.textContent).toContain('reporte');
   });
 
   it('should keep the save button disabled while the form is invalid', () => {
@@ -79,5 +89,15 @@ describe('Settings', () => {
     await fixture.whenStable();
 
     expect(saveSettings).toHaveBeenCalledWith('usuario@example.com', EVENT);
+  });
+
+  it('should navigate to the new report page after saving', async () => {
+    component.form.setValue({ email: 'usuario@example.com', eventId: EVENT.id });
+    fixture.detectChanges();
+
+    getButton(fixture, 'Guardar').click();
+    await fixture.whenStable();
+
+    expect(navigate).toHaveBeenCalledWith(['/nuevo-reporte']);
   });
 });

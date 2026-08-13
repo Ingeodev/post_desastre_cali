@@ -8,6 +8,13 @@
     </p>
   </header>
 
+  <p-message
+    severity="info"
+    icon="pi pi-info-circle"
+    variant="outlined"
+    text="Estos datos son obligatorios: se asocian a cada reporte y permiten saber cómo comunicarse con quien lo reportó. Al guardarlos serás dirigido a la pestaña Nuevo para crear un reporte."
+  />
+
   <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col gap-5">
     <div class="flex flex-col gap-1">
       <label for="email" class="text-sm font-medium">Correo electrónico</label>

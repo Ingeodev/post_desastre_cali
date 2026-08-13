@@ -1,15 +1,17 @@
 import { ChangeDetectionStrategy, Component, effect, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
+import { Message } from 'primeng/message';
 import { SelectModule } from 'primeng/select';
 import { SeismicEvents } from '../../../../../core/supabase-models/supabase-type-aliases';
 import { SettingsStore } from '../../stores/settings.store';
 
 @Component({
   selector: 'app-settings',
-  imports: [ReactiveFormsModule, InputTextModule, SelectModule, ButtonModule],
+  imports: [ReactiveFormsModule, InputTextModule, SelectModule, ButtonModule, Message],
   templateUrl: './settings.html',
   styleUrl: './settings.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -17,6 +19,7 @@ import { SettingsStore } from '../../stores/settings.store';
 export class Settings {
   readonly settingsStore = inject(SettingsStore);
   private readonly messageService = inject(MessageService);
+  private readonly router = inject(Router);
 
   readonly saving = signal(false);
 
@@ -66,6 +69,7 @@ export class Settings {
         summary: 'Configuración guardada',
         detail: 'Tus datos se guardaron correctamente.',
       });
+      this.router.navigate(['/nuevo-reporte']);
     } catch (error) {
       this.messageService.add({
         severity: 'error',
