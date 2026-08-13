@@ -101,10 +101,17 @@ export class SupabaseInspectionPhotoRepository
 
     const path = `${photo.inspectionId ?? 'pending'}/${photo.id}`;
 
+    const body =
+      typeof File !== 'undefined' && photo.blob instanceof File
+        ? photo.blob
+        : new File([photo.blob], `${photo.id}.jpg`, {
+            type: photo.mimeType || 'image/jpeg',
+          });
+
     const { data, error } = await supabase.storage
       .from(PHOTOS_BUCKET)
-      .upload(path, photo.blob, {
-        contentType: photo.mimeType,
+      .upload(path, body, {
+        contentType: body.type,
         upsert: true,
       });
 

@@ -102,7 +102,10 @@ describe('GlobalStore', () => {
     expect(store.syncStatus()).toBe('error');
     expect(store.pendingCount()).toBe(2);
     expect(messageService.add).toHaveBeenCalledWith(
-      expect.objectContaining({ severity: 'error' }),
+      expect.objectContaining({
+        severity: 'error',
+        detail: expect.stringContaining('boom'),
+      }),
     );
   });
 

@@ -13,6 +13,18 @@ import { ConnectivityService } from '../../core/connectivity/connectivity.servic
 import { SupabaseAuthService } from '../../core/data/supabase/supabase-auth.service';
 import { SyncReportsUseCase } from '../../features/report/domain/use-cases/sync-reports';
 
+function errorMessage(error: unknown): string {
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  if (typeof error === 'string') {
+    return error;
+  }
+
+  return 'Intenta nuevamente.';
+}
+
 export type SyncStatus = 'idle' | 'syncing' | 'synced' | 'error';
 
 interface GlobalState {
@@ -83,7 +95,7 @@ export const GlobalStore = signalStore(
         store.messageService.add({
           severity: 'error',
           summary: 'Error al sincronizar',
-          detail: 'No se pudieron sincronizar los reportes. Intenta nuevamente.',
+          detail: `No se pudieron sincronizar los reportes. ${errorMessage(error)}`,
         });
       }
     },

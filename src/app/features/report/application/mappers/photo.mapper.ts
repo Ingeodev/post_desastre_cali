@@ -28,22 +28,22 @@ export async function resizePhoto(
   blob: Blob,
   maxSideRatio = 0.6,
 ): Promise<Blob> {
-  const bitmap = await createImageBitmap(blob);
+  const source = await decodePhoto(blob);
   const maxSide = window.innerWidth * maxSideRatio;
 
   const scale = Math.min(
     1,
-    maxSide / bitmap.width,
-    maxSide / bitmap.height,
+    maxSide / source.width,
+    maxSide / source.height,
   );
 
   if (scale >= 1) {
-    bitmap.close();
+    closeSource(source);
     return blob;
   }
 
-  const width = Math.round(bitmap.width * scale);
-  const height = Math.round(bitmap.height * scale);
+  const width = Math.round(source.width * scale);
+  const height = Math.round(source.height * scale);
 
   const canvas = document.createElement('canvas');
   canvas.width = width;
@@ -52,21 +52,73 @@ export async function resizePhoto(
   const context = canvas.getContext('2d');
 
   if (!context) {
-    bitmap.close();
+    closeSource(source);
     return blob;
   }
 
-  context.drawImage(bitmap, 0, 0, width, height);
-  bitmap.close();
+  context.drawImage(source, 0, 0, width, height);
+  closeSource(source);
 
-  return new Promise<Blob>((resolve, reject) => {
+  return canvasToJpegBlob(canvas);
+}
+
+async function decodePhoto(
+  blob: Blob,
+): Promise<ImageBitmap | HTMLImageElement> {
+  if (typeof createImageBitmap !== 'undefined') {
+    try {
+      return await createImageBitmap(blob);
+    } catch {
+      // WebKit can fail to decode some formats (e.g. HEIC) via createImageBitmap.
+    }
+  }
+
+  return decodeViaImageElement(blob);
+}
+
+function decodeViaImageElement(blob: Blob): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(blob);
+    const image = new Image();
+
+    image.onload = () => {
+      URL.revokeObjectURL(url);
+      resolve(image);
+    };
+
+    image.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error('Failed to decode photo for resize'));
+    };
+
+    image.src = url;
+  });
+}
+
+function closeSource(source: ImageBitmap | HTMLImageElement): void {
+  if (typeof ImageBitmap !== 'undefined' && source instanceof ImageBitmap) {
+    source.close();
+  }
+}
+
+async function canvasToJpegBlob(canvas: HTMLCanvasElement): Promise<Blob> {
+  return new Promise<Blob>((resolve) => {
     canvas.toBlob(
-      (output) =>
-        output
-          ? resolve(output)
-          : reject(new Error('Failed to resize photo')),
+      (output) => resolve(output ?? dataUrlToJpegBlob(canvas)),
       'image/jpeg',
       0.85,
     );
   });
+}
+
+function dataUrlToJpegBlob(canvas: HTMLCanvasElement): Blob {
+  const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+  const binary = atob(dataUrl.split(',')[1]);
+  const bytes = new Uint8Array(binary.length);
+
+  for (let index = 0; index < binary.length; index++) {
+    bytes[index] = binary.charCodeAt(index);
+  }
+
+  return new Blob([bytes], { type: 'image/jpeg' });
 }
