@@ -50,11 +50,7 @@ export class AddReport {
 
   readonly isOccupancyStepValid = computed(() => {
     const occupancy = this.newReportStore.occupancy();
-    return (
-      occupancy.isCurrentlyOccupied !== null &&
-      occupancy.hasTrappedPeople !== null &&
-      occupancy.estimatedResidents !== null
-    );
+    return occupancy.estimatedResidents !== null;
   });
 
   readonly hasPhotos = computed(() => this.newReportStore.photos().length > 0);
@@ -90,7 +86,7 @@ export class AddReport {
         this.messageService.add({
           severity: 'success',
           summary: 'Reporte guardado',
-          detail: 'El reporte se guardó correctamente y quedará pendiente de sincronizar.',
+          detail: 'El reporte se guardó correctamente. No olvides sincronizar tus registros para que se almacenen de manera remota.',
         });
         this.router.navigate(['/reportes']);
       } else if (status === 'error') {
