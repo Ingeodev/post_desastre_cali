@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { NewReportForm } from './new-report-form';
+import { SaveReport } from '../../../domain/use-cases/save-report';
 
 describe('NewReportForm', () => {
   let component: NewReportForm;
@@ -9,6 +10,9 @@ describe('NewReportForm', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [NewReportForm],
+      providers: [
+        { provide: SaveReport, useValue: { execute: () => Promise.resolve() } },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(NewReportForm);

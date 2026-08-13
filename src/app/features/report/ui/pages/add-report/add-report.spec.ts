@@ -14,6 +14,7 @@ import { AddReport } from './add-report';
 import { MapForm } from '../../components/map-form/map-form';
 import { NewReportStore } from '../../stores/new-report.store';
 import { ReportStore } from '../../stores/report.store';
+import { SaveReport } from '../../../domain/use-cases/save-report';
 
 @Component({
   selector: 'app-map-form',
@@ -50,6 +51,7 @@ describe('AddReport', () => {
   let component: AddReport;
   let fixture: ComponentFixture<AddReport>;
   let store: InstanceType<typeof NewReportStore>;
+  const saveReport = { execute: vi.fn().mockResolvedValue(undefined) };
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -66,6 +68,7 @@ describe('AddReport', () => {
             damageCatalog: signal<DamagePatterns[]>([]),
           },
         },
+        { provide: SaveReport, useValue: saveReport },
       ],
     })
       .overrideComponent(AddReport, {
@@ -158,7 +161,7 @@ describe('AddReport', () => {
     expect(getButton(fixture, 'Siguiente').disabled).toBe(false);
   });
 
-  it('should label the last step button as Enviar and build the entities on finish', () => {
+  it('should label the last step button as Enviar and save the report on finish', async () => {
     store.setCoordinates([-76.5, 3.45]);
     store.updateInspection({
       constructionTypeId: 3,
@@ -182,10 +185,12 @@ describe('AddReport', () => {
     const sendButton = getButton(fixture, 'Enviar');
     expect(sendButton.disabled).toBe(false);
 
-    const logSpy = vi.spyOn(console, 'log');
     sendButton.click();
     fixture.detectChanges();
 
-    expect(logSpy.mock.calls[0][0]).toBe('[REPORT READY]');
+    await vi.waitFor(() => {
+      expect(saveReport.execute).toHaveBeenCalledTimes(1);
+    });
+    expect(store.inspection().geom).toBeNull();
   });
 });

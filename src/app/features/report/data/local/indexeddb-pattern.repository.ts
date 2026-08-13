@@ -1,8 +1,10 @@
+import { Injectable } from '@angular/core';
 import { IndexDb } from '../../../../core/data/local/db';
 import { INDEX_DB_STORES } from '../../../../core/data/local/db-stores';
 import { InspectionPatternRepository } from '../../domain/interfaces/inspection-pattern.repository';
 import { InspectionPatternEntity } from '../entities/inspection-pattern.entity';
 
+@Injectable({ providedIn: 'root' })
 export class IndexedDbInspectionPatternRepository
   implements InspectionPatternRepository
 {

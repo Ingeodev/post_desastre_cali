@@ -1,6 +1,11 @@
 import { INDEX_DB_NAME, INDEX_DB_SCHEMA } from "./db-shcema";
 import { IndexDbStore } from "./db-stores";
 
+export interface IndexDbRecord {
+  store: IndexDbStore;
+  value: object;
+}
+
 export class IndexDb {
   private database?: IDBDatabase;
   private opening?: Promise<IDBDatabase>;
@@ -123,6 +128,43 @@ export class IndexDb {
             new Error(
               `Transaction aborted for store "${store}"`,
             ),
+        );
+      };
+    });
+  }
+
+  async putInTransaction(records: IndexDbRecord[]): Promise<void> {
+    if (records.length === 0) {
+      return;
+    }
+
+    const database = await this.open();
+
+    return new Promise<void>((resolve, reject) => {
+      const transaction = database.transaction(
+        records.map((record) => record.store),
+        'readwrite',
+      );
+
+      for (const record of records) {
+        transaction.objectStore(record.store).put(record.value);
+      }
+
+      transaction.oncomplete = () => {
+        resolve();
+      };
+
+      transaction.onerror = () => {
+        reject(
+          transaction.error ??
+            new Error('Failed to write records in transaction'),
+        );
+      };
+
+      transaction.onabort = () => {
+        reject(
+          transaction.error ??
+            new Error('Transaction aborted while writing records'),
         );
       };
     });

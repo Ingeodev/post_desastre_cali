@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { MapForm } from './map-form';
+import { SaveReport } from '../../../domain/use-cases/save-report';
 
 vi.mock('@maplibre/ngx-maplibre-gl', async () => {
   const { Component } = await import('@angular/core');
@@ -34,6 +35,9 @@ describe('MapForm', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [MapForm],
+      providers: [
+        { provide: SaveReport, useValue: { execute: () => Promise.resolve() } },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(MapForm);

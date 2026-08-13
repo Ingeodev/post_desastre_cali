@@ -1,8 +1,10 @@
+import { Injectable } from '@angular/core';
 import { IndexDb } from '../../../../core/data/local/db';
 import { INDEX_DB_STORES } from '../../../../core/data/local/db-stores';
 import { InspectionOccupancyRepository } from '../../domain/interfaces/inspection-occupancy.repository';
 import { InspectionOccupancyEntity } from '../entities/inspection-occupancy.entity';
 
+@Injectable({ providedIn: 'root' })
 export class IndexedDbInspectionOccupancyRepository
   implements InspectionOccupancyRepository
 {

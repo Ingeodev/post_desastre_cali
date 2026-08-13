@@ -79,7 +79,6 @@ export class AddReport {
   }
 
   onFinish(): void {
-    const entities = this.newReportStore.buildEntities();
-    console.log('[REPORT READY]', entities);
+    this.newReportStore.save();
   }
 }

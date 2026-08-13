@@ -1,7 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { vi } from 'vitest';
 
 import { AttachmentManager } from './attachment-manager';
 import { NewReportStore } from '../../stores/new-report.store';
+import { SaveReport } from '../../../domain/use-cases/save-report';
 
 describe('AttachmentManager', () => {
   let component: AttachmentManager;
@@ -10,7 +12,10 @@ describe('AttachmentManager', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [AttachmentManager],
-      providers: [NewReportStore],
+      providers: [
+        NewReportStore,
+        { provide: SaveReport, useValue: { execute: vi.fn() } },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(AttachmentManager);

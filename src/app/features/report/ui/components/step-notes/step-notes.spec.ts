@@ -1,7 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { vi } from 'vitest';
 
 import { StepNotes } from './step-notes';
 import { NewReportStore } from '../../stores/new-report.store';
+import { SaveReport } from '../../../domain/use-cases/save-report';
 
 describe('StepNotes', () => {
   let component: StepNotes;
@@ -11,6 +13,7 @@ describe('StepNotes', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [StepNotes],
+      providers: [{ provide: SaveReport, useValue: { execute: vi.fn() } }],
     }).compileComponents();
 
     store = TestBed.inject(NewReportStore);

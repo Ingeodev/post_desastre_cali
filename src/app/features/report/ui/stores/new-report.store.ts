@@ -1,17 +1,20 @@
-import { computed } from '@angular/core';
+import { computed, inject } from '@angular/core';
 import {
   patchState,
   signalStore,
   withComputed,
   withMethods,
+  withProps,
   withState,
 } from '@ngrx/signals';
+import { rxMethod } from '@ngrx/signals/rxjs-interop';
+import { EMPTY, catchError, pipe, switchMap, tap, throwError } from 'rxjs';
 import { DamageInspectionsInsert } from '../../../../core/supabase-models/supabase-type-aliases';
 import { resizePhoto, toLocalPhoto } from '../../application/mappers/photo.mapper';
-import { GeoJsonPoint, InspectionEntity } from '../../data/entities/inspection.entity';
-import { InspectionOccupancyEntity } from '../../data/entities/inspection-occupancy.entity';
-import { InspectionPatternEntity } from '../../data/entities/inspection-pattern.entity';
+import { GeoJsonPoint } from '../../data/entities/inspection.entity';
 import { InspectionPhotoEntity } from '../../data/entities/inspection-photo.entity';
+import { ReportEntities } from '../../domain/models/report-entities.model';
+import { SaveReport } from '../../domain/use-cases/save-report';
 
 export interface NewReportDraft {
   addressText: string;
@@ -58,13 +61,6 @@ interface NewReportState {
   photos: InspectionPhotoEntity[];
 }
 
-export interface ReportEntities {
-  inspection: InspectionEntity;
-  occupancy: InspectionOccupancyEntity | null;
-  patterns: InspectionPatternEntity[];
-  photos: InspectionPhotoEntity[];
-}
-
 function createInitialState(): NewReportState {
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
@@ -100,6 +96,9 @@ function createInitialState(): NewReportState {
 export const NewReportStore = signalStore(
   { providedIn: 'root' },
   withState<NewReportState>(createInitialState()),
+  withProps(() => ({
+    saveReport: inject(SaveReport),
+  })),
   withComputed((store) => ({
     report: computed((): NewReportDraft => {
       const inspection = store.inspection();
@@ -264,4 +263,22 @@ export const NewReportStore = signalStore(
       },
     };
   }),
+  withMethods((store) => ({
+    save: rxMethod<void>(
+      pipe(
+        switchMap(() => {
+          try {
+            return store.saveReport.execute(store.buildEntities());
+          } catch (error) {
+            return throwError(() => error);
+          }
+        }),
+        catchError((error) => {
+          console.error('Failed to save report', error);
+          return EMPTY;
+        }),
+        tap(() => patchState(store, createInitialState())),
+      ),
+    ),
+  })),
 );
