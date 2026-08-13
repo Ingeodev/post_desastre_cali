@@ -6,6 +6,8 @@ export const INDEX_DB_STORES = {
   inspectionOccupancy: 'inspection_occupancy',
   inspectionPatterns: 'inspection_patterns',
   syncQueue: 'sync_queue',
+  seismicEvents: 'seismic_events',
+  user: 'user',
 } as const;
 
 export type IndexDbStore =

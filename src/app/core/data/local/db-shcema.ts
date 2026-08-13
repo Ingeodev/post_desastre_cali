@@ -1,8 +1,10 @@
 export const INDEX_DB_NAME = 'post-desastre-cali';
 
-export const INDEX_DB_VERSION = 1;
+export const INDEX_DB_VERSION = 3;
 
 export const INDEX_DB_SCHEMA = {
+  // Las claves SON los nombres reales de los object stores (snake_case),
+  // y coinciden con los valores de INDEX_DB_STORES.
   reports: {
     keyPath: 'id',
   },
@@ -31,7 +33,7 @@ export const INDEX_DB_SCHEMA = {
     },
   },
 
-  inspectionPhotos: {
+  inspection_photos: {
     keyPath: 'id',
     indexes: {
       inspectionId: {
@@ -49,7 +51,7 @@ export const INDEX_DB_SCHEMA = {
     },
   },
 
-  inspectionOccupancy: {
+  inspection_occupancy: {
     keyPath: 'id',
     indexes: {
       inspectionId: {
@@ -61,7 +63,7 @@ export const INDEX_DB_SCHEMA = {
     },
   },
 
-  inspectionPatterns: {
+  inspection_patterns: {
     keyPath: ['inspectionId', 'patternId'],
     indexes: {
       inspectionId: {
@@ -73,7 +75,7 @@ export const INDEX_DB_SCHEMA = {
     },
   },
 
-  syncQueue: {
+  sync_queue: {
     keyPath: 'id',
     indexes: {
       status: {
@@ -83,5 +85,13 @@ export const INDEX_DB_SCHEMA = {
         },
       },
     },
+  },
+
+  seismic_events: {
+    keyPath: 'id',
+  },
+
+  user: {
+    keyPath: 'id',
   },
 } as const;

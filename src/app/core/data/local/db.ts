@@ -1,4 +1,4 @@
-import { INDEX_DB_NAME, INDEX_DB_SCHEMA, INDEX_DB_VERSION } from "./db-shcema";
+import { INDEX_DB_NAME, INDEX_DB_SCHEMA } from "./db-shcema";
 import { IndexDbStore } from "./db-stores";
 
 export class IndexDb {
@@ -14,42 +14,80 @@ export class IndexDb {
       return this.opening;
     }
 
-    this.opening = new Promise<IDBDatabase>((resolve, reject) => {
-      const request = indexedDB.open(
-        INDEX_DB_NAME,
-        INDEX_DB_VERSION,
-      );
+    this.opening = this.openCurrent()
+      .then((database) => {
+        if (this.hasExpectedStores(database)) {
+          this.setDatabase(database);
+          return database;
+        }
+
+        // Faltan stores alineados (base vieja o "pegada" en una versión sin
+        // schema): forzamos un upgrade con la versión siguiente.
+        database.close();
+
+        return this.upgradeSchema(database.version + 1).then((upgraded) => {
+          this.setDatabase(upgraded);
+          return upgraded;
+        });
+      })
+      .finally(() => {
+        this.opening = undefined;
+      });
+
+    return this.opening;
+  }
+
+  private openCurrent(): Promise<IDBDatabase> {
+    return new Promise<IDBDatabase>((resolve, reject) => {
+      const request = indexedDB.open(INDEX_DB_NAME);
+
+      request.onsuccess = () => {
+        resolve(request.result);
+      };
+
+      request.onerror = () => {
+        reject(
+          request.error ?? new Error('Unable to open IndexedDB database'),
+        );
+      };
+    });
+  }
+
+  private upgradeSchema(version: number): Promise<IDBDatabase> {
+    return new Promise<IDBDatabase>((resolve, reject) => {
+      const request = indexedDB.open(INDEX_DB_NAME, version);
 
       request.onupgradeneeded = () => {
         this.configureSchema(request.result);
       };
 
       request.onsuccess = () => {
-        const database = request.result;
-
-        this.database = database;
-
-        database.onversionchange = () => {
-          database.close();
-          this.database = undefined;
-        };
-
-        resolve(database);
+        resolve(request.result);
       };
 
       request.onerror = () => {
         reject(
-          request.error ??
-            new Error('Unable to open IndexedDB database'),
+          request.error ?? new Error('Unable to open IndexedDB database'),
         );
       };
     });
+  }
 
-    try {
-      return await this.opening;
-    } finally {
-      this.opening = undefined;
-    }
+  private setDatabase(database: IDBDatabase): void {
+    this.database = database;
+
+    database.onversionchange = () => {
+      database.close();
+      if (this.database === database) {
+        this.database = undefined;
+      }
+    };
+  }
+
+  private hasExpectedStores(database: IDBDatabase): boolean {
+    return Object.keys(INDEX_DB_SCHEMA).every((storeName) =>
+      database.objectStoreNames.contains(storeName),
+    );
   }
 
   async put<T>(
@@ -216,6 +254,8 @@ export class IndexDb {
   private configureSchema(
     database: IDBDatabase,
   ): void {
+    this.dropLegacyStores(database);
+
     for (const [storeName, configuration] of Object.entries(
       INDEX_DB_SCHEMA,
     )) {
@@ -226,6 +266,22 @@ export class IndexDb {
           storeName,
           configuration as IDBObjectStoreParameters,
         );
+      }
+    }
+  }
+
+  private dropLegacyStores(database: IDBDatabase): void {
+    const legacyNames = [
+      'inspectionPhotos',
+      'inspectionOccupancy',
+      'inspectionPatterns',
+      'syncQueue',
+      'seismicEvents',
+    ];
+
+    for (const name of legacyNames) {
+      if (database.objectStoreNames.contains(name)) {
+        database.deleteObjectStore(name);
       }
     }
   }
