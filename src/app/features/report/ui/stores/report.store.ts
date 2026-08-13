@@ -11,31 +11,32 @@ import { Subscription } from 'rxjs';
 import {
   ConstructionTypes,
   DamageCategories,
+  DamagePatterns,
   DataSources,
   SeismicEvents,
 } from '../../../../core/supabase-models/supabase-type-aliases';
-import { Report } from '../../domain/models/report.model';
+import { ReportSummary } from '../../domain/models/report-summary.model';
 import { GetConstructionTypes } from '../../domain/use-cases/get-construction-types';
 import { GetDamageCategories } from '../../domain/use-cases/get-damage-categories';
 import { GetDataSources } from '../../domain/use-cases/get-data-sources';
 import { GetSeismicEvents } from '../../../../shared/use-cases/get-seismic-events';
 import { GetDamageCatalog } from '../../domain/use-cases/get-damage-catalog';
-import { DamagePatterns } from '../../../../core/supabase-models/supabase-type-aliases';
+import { GetReportSummaries } from '../../domain/use-cases/get-report-summaries';
 
 type ReportsState = {
-  reports: Report[];
-  selectedReport: string | null;
+  summaries: ReportSummary[];
+  selectedReport: ReportSummary | null;
   isLoading: boolean;
   filter: { query: string; order: 'asc' | 'desc' };
   damageCategories: DamageCategories[];
   constructionTypes: ConstructionTypes[];
   dataSources: DataSources[];
   currentSeismicEvent: SeismicEvents | null;
-  damageCatalog: DamagePatterns[]
+  damageCatalog: DamagePatterns[];
 };
 
 const initialState: ReportsState = {
-  reports: [],
+  summaries: [],
   selectedReport: null,
   isLoading: false,
   filter: { query: '', order: 'asc' },
@@ -43,7 +44,7 @@ const initialState: ReportsState = {
   constructionTypes: [],
   dataSources: [],
   currentSeismicEvent: null,
-  damageCatalog: []
+  damageCatalog: [],
 };
 
 export const ReportStore = signalStore(
@@ -55,6 +56,7 @@ export const ReportStore = signalStore(
     getDataSources: inject(GetDataSources),
     getSeismicEvents: inject(GetSeismicEvents),
     getDamageCatalog: inject(GetDamageCatalog),
+    getReportSummaries: inject(GetReportSummaries),
   })),
   withMethods((store) => {
     let catalogsSubscription: Subscription | undefined;
@@ -90,11 +92,31 @@ export const ReportStore = signalStore(
         );
         catalogsSubscription.add(
           store.getDamageCatalog.execute().subscribe((damageCatalog) => {
-            if(damageCatalog.length > 0) {
-              patchState(store, { damageCatalog: damageCatalog});
+            if (damageCatalog.length > 0) {
+              patchState(store, { damageCatalog: damageCatalog });
             }
-          })
-        )
+          }),
+        );
+      },
+
+      async loadSummaries(): Promise<void> {
+        if (store.isLoading()) {
+          return;
+        }
+
+        patchState(store, { isLoading: true });
+
+        try {
+          const summaries = await store.getReportSummaries.execute();
+          patchState(store, { summaries, isLoading: false });
+        } catch (error) {
+          console.error('Failed to load report summaries', error);
+          patchState(store, { isLoading: false });
+        }
+      },
+
+      selectReport(summary: ReportSummary): void {
+        patchState(store, { selectedReport: summary });
       },
     };
   }),

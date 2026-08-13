@@ -20,6 +20,7 @@ describe('App', () => {
             isSyncing: signal(false),
             canSync: signal(false),
             syncNow: (): void => undefined,
+            syncProgress: signal({ synced: 0, total: 0 }),
           },
         },
       ],
@@ -32,10 +33,10 @@ describe('App', () => {
     expect(app).toBeTruthy();
   });
 
-  it('should render the default layout', async () => {
+  it('should render the router outlet', async () => {
     const fixture = TestBed.createComponent(App);
     await fixture.whenStable();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('app-default-layout')).not.toBeNull();
+    expect(compiled.querySelector('router-outlet')).not.toBeNull();
   });
 });

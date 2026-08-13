@@ -1,9 +1,14 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ReportLayer } from './report-layer';
+import { ReportDetailMap } from './report-detail-map';
 
 vi.mock('@maplibre/ngx-maplibre-gl', async () => {
   const { Component } = await import('@angular/core');
+
+  const MapComponent = Component({
+    selector: 'mgl-map',
+    template: '<div></div>',
+  })(class MapComponent {});
 
   const GeoJSONSourceComponent = Component({
     selector: 'mgl-geojson-source',
@@ -16,21 +21,22 @@ vi.mock('@maplibre/ngx-maplibre-gl', async () => {
   })(class LayerComponent {});
 
   return {
+    MapComponent,
     GeoJSONSourceComponent,
     LayerComponent,
   };
 });
 
-describe('ReportLayer', () => {
-  let component: ReportLayer;
-  let fixture: ComponentFixture<ReportLayer>;
+describe('ReportDetailMap', () => {
+  let component: ReportDetailMap;
+  let fixture: ComponentFixture<ReportDetailMap>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ReportLayer],
+      imports: [ReportDetailMap],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(ReportLayer);
+    fixture = TestBed.createComponent(ReportDetailMap);
     component = fixture.componentInstance;
     fixture.componentRef.setInput('location', {
       type: 'Point',
@@ -43,12 +49,7 @@ describe('ReportLayer', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should build a marker source from the location', () => {
-    const source = component.markerSource();
-    expect(source.features.length).toBe(1);
-    expect(source.features[0].geometry).toEqual({
-      type: 'Point',
-      coordinates: [-76.5225, 3.4516],
-    });
+  it('should center the map on the report location', () => {
+    expect(component.center()).toEqual([-76.5225, 3.4516]);
   });
 });

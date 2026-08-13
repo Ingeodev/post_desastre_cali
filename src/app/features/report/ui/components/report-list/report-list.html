@@ -1,0 +1,28 @@
+@if (store.isLoading()) {
+  <div class="flex flex-col gap-3">
+    @for (placeholder of placeholders; track placeholder) {
+      <div
+        class="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white p-3 dark:border-zinc-800 dark:bg-zinc-900"
+      >
+        <div class="h-16 w-16 shrink-0 animate-pulse rounded-lg bg-zinc-200 dark:bg-zinc-800"></div>
+        <div class="flex-1 space-y-2">
+          <div class="h-4 w-2/3 animate-pulse rounded bg-zinc-200 dark:bg-zinc-800"></div>
+          <div class="h-3 w-1/3 animate-pulse rounded bg-zinc-200 dark:bg-zinc-800"></div>
+        </div>
+      </div>
+    }
+  </div>
+} @else if (store.summaries().length === 0) {
+  <div class="flex flex-col items-center gap-3 py-16 text-center">
+    <span class="pi pi-inbox text-4xl text-zinc-300 dark:text-zinc-600" aria-hidden="true"></span>
+    <p class="text-sm text-zinc-500 dark:text-zinc-400">
+      Todavía no hay reportes registrados.
+    </p>
+  </div>
+} @else {
+  <div class="flex flex-col gap-3">
+    @for (summary of store.summaries(); track summary.id) {
+      <app-report-list-item [summary]="summary" />
+    }
+  </div>
+}

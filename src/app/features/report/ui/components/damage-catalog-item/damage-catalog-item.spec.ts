@@ -13,6 +13,14 @@ describe('DamageCatalogItemComponent', () => {
 
     fixture = TestBed.createComponent(DamageCatalogItemComponent);
     component = fixture.componentInstance;
+    component.item = {
+      id: 1,
+      code: 'GRIETA',
+      label: 'Grieta',
+      description: 'Descripción',
+      reference_image_url: 'https://example.com/img.png',
+      active: true,
+    };
     await fixture.whenStable();
   });
 
