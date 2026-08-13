@@ -15,7 +15,7 @@
         class="inline-flex h-10 w-10 items-center justify-center rounded-full text-zinc-500 transition-colors hover:bg-zinc-200/70 hover:text-zinc-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-zinc-400 dark:hover:bg-zinc-800/70 dark:hover:text-zinc-50"
         aria-label="Alertas"
       >
-        <span class="pi pi-exclamation-triangle text-lg" aria-hidden="true"></span>
+        <ng-icon name="matInfoOutline" />
       </button>
 
       @if (globalStore.isSyncing()) {
@@ -34,7 +34,7 @@
           aria-label="Sincronizar"
           (click)="globalStore.syncNow()"
         >
-          <span class="pi pi-refresh text-lg" aria-hidden="true"></span>
+          <ng-icon name="hugeCloudUpload" />
         </button>
       }
     </div>
