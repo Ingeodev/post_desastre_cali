@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { vi } from 'vitest';
+import { MessageService } from 'primeng/api';
 import { ConnectivityService } from '../../core/connectivity/connectivity.service';
 import { SupabaseAuthService } from '../../core/data/supabase/supabase-auth.service';
 import { SyncReportsUseCase } from '../../features/report/domain/use-cases/sync-reports';
@@ -10,6 +11,7 @@ describe('GlobalStore', () => {
   let store: InstanceType<typeof GlobalStore>;
   let isOnline: ReturnType<typeof signal<boolean>>;
   let supabaseAuth: { ensureSession: ReturnType<typeof vi.fn> };
+  let messageService: { add: ReturnType<typeof vi.fn> };
   let syncReports: {
     pendingCount: ReturnType<typeof vi.fn>;
     run: ReturnType<typeof vi.fn>;
@@ -19,6 +21,7 @@ describe('GlobalStore', () => {
   beforeEach(() => {
     isOnline = signal(true);
     supabaseAuth = { ensureSession: vi.fn().mockResolvedValue(undefined) };
+    messageService = { add: vi.fn() };
     syncReports = {
       pendingCount: vi.fn().mockResolvedValue(0),
       run: vi.fn().mockResolvedValue(undefined),
@@ -30,6 +33,7 @@ describe('GlobalStore', () => {
         GlobalStore,
         { provide: ConnectivityService, useValue: { isOnline, start: vi.fn() } },
         { provide: SupabaseAuthService, useValue: supabaseAuth },
+        { provide: MessageService, useValue: messageService },
         { provide: SyncReportsUseCase, useValue: syncReports },
       ],
     });
@@ -97,6 +101,9 @@ describe('GlobalStore', () => {
 
     expect(store.syncStatus()).toBe('error');
     expect(store.pendingCount()).toBe(2);
+    expect(messageService.add).toHaveBeenCalledWith(
+      expect.objectContaining({ severity: 'error' }),
+    );
   });
 
   it('should reset the pending count after a successful sync', async () => {
@@ -108,6 +115,9 @@ describe('GlobalStore', () => {
 
     expect(store.syncStatus()).toBe('idle');
     expect(store.pendingCount()).toBe(0);
+    expect(messageService.add).toHaveBeenCalledWith(
+      expect.objectContaining({ severity: 'success' }),
+    );
   });
 
   it('should establish the anonymous session before syncing', async () => {

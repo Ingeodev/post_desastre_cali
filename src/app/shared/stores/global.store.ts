@@ -8,6 +8,7 @@ import {
   withProps,
   withState,
 } from '@ngrx/signals';
+import { MessageService } from 'primeng/api';
 import { ConnectivityService } from '../../core/connectivity/connectivity.service';
 import { SupabaseAuthService } from '../../core/data/supabase/supabase-auth.service';
 import { SyncReportsUseCase } from '../../features/report/domain/use-cases/sync-reports';
@@ -33,6 +34,7 @@ export const GlobalStore = signalStore(
     connectivity: inject(ConnectivityService),
     syncReports: inject(SyncReportsUseCase),
     supabaseAuth: inject(SupabaseAuthService),
+    messageService: inject(MessageService),
   })),
   withComputed((store) => ({
     isOnline: computed(() => store.connectivity.isOnline()),
@@ -69,10 +71,20 @@ export const GlobalStore = signalStore(
         await store.syncReports.run();
         await store.refreshPendingCount();
         patchState(store, { syncStatus: 'idle' });
+        store.messageService.add({
+          severity: 'success',
+          summary: 'Sincronización completada',
+          detail: 'Tus reportes pendientes ya están almacenados de forma remota.',
+        });
       } catch (error) {
         console.error('Sync failed', error);
         await store.refreshPendingCount();
         patchState(store, { syncStatus: 'error' });
+        store.messageService.add({
+          severity: 'error',
+          summary: 'Error al sincronizar',
+          detail: 'No se pudieron sincronizar los reportes. Intenta nuevamente.',
+        });
       }
     },
   })),
