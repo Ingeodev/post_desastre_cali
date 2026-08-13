@@ -9,6 +9,7 @@ import {
   withState,
 } from '@ngrx/signals';
 import { ConnectivityService } from '../../core/connectivity/connectivity.service';
+import { SupabaseAuthService } from '../../core/data/supabase/supabase-auth.service';
 import { SyncReportsUseCase } from '../../features/report/domain/use-cases/sync-reports';
 
 export type SyncStatus = 'idle' | 'syncing' | 'synced' | 'error';
@@ -31,6 +32,7 @@ export const GlobalStore = signalStore(
   withProps(() => ({
     connectivity: inject(ConnectivityService),
     syncReports: inject(SyncReportsUseCase),
+    supabaseAuth: inject(SupabaseAuthService),
   })),
   withComputed((store) => ({
     isOnline: computed(() => store.connectivity.isOnline()),
@@ -63,6 +65,7 @@ export const GlobalStore = signalStore(
       patchState(store, { syncStatus: 'syncing' });
 
       try {
+        await store.supabaseAuth.ensureSession();
         await store.syncReports.run();
         await store.refreshPendingCount();
         patchState(store, { syncStatus: 'idle' });

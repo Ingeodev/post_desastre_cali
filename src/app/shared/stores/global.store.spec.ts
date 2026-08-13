@@ -2,12 +2,14 @@ import { TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { vi } from 'vitest';
 import { ConnectivityService } from '../../core/connectivity/connectivity.service';
+import { SupabaseAuthService } from '../../core/data/supabase/supabase-auth.service';
 import { SyncReportsUseCase } from '../../features/report/domain/use-cases/sync-reports';
 import { GlobalStore } from './global.store';
 
 describe('GlobalStore', () => {
   let store: InstanceType<typeof GlobalStore>;
   let isOnline: ReturnType<typeof signal<boolean>>;
+  let supabaseAuth: { ensureSession: ReturnType<typeof vi.fn> };
   let syncReports: {
     pendingCount: ReturnType<typeof vi.fn>;
     run: ReturnType<typeof vi.fn>;
@@ -16,6 +18,7 @@ describe('GlobalStore', () => {
 
   beforeEach(() => {
     isOnline = signal(true);
+    supabaseAuth = { ensureSession: vi.fn().mockResolvedValue(undefined) };
     syncReports = {
       pendingCount: vi.fn().mockResolvedValue(0),
       run: vi.fn().mockResolvedValue(undefined),
@@ -26,6 +29,7 @@ describe('GlobalStore', () => {
       providers: [
         GlobalStore,
         { provide: ConnectivityService, useValue: { isOnline, start: vi.fn() } },
+        { provide: SupabaseAuthService, useValue: supabaseAuth },
         { provide: SyncReportsUseCase, useValue: syncReports },
       ],
     });
@@ -104,6 +108,27 @@ describe('GlobalStore', () => {
 
     expect(store.syncStatus()).toBe('idle');
     expect(store.pendingCount()).toBe(0);
+  });
+
+  it('should establish the anonymous session before syncing', async () => {
+    syncReports.pendingCount.mockResolvedValue(2);
+
+    await store.refreshPendingCount();
+    await store.syncNow();
+
+    expect(supabaseAuth.ensureSession).toHaveBeenCalledTimes(1);
+    expect(syncReports.run).toHaveBeenCalledTimes(1);
+  });
+
+  it('should not sync when the anonymous session cannot be established', async () => {
+    supabaseAuth.ensureSession.mockRejectedValue(new Error('anon disabled'));
+    syncReports.pendingCount.mockResolvedValue(2);
+
+    await store.refreshPendingCount();
+    await store.syncNow();
+
+    expect(store.syncStatus()).toBe('error');
+    expect(syncReports.run).not.toHaveBeenCalled();
   });
 
   it('should expose the pending count refresh after registering a report', async () => {

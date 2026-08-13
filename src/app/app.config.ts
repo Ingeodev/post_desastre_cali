@@ -10,6 +10,7 @@ import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeuix/themes/aura';
 import { IngeodevPreset } from '../ingeodev.theme';
 import { IndexDb } from './core/data/local/db';
+import { SupabaseAuthService } from './core/data/supabase/supabase-auth.service';
 import { GlobalStore } from './shared/stores/global.store';
 
 export const appConfig: ApplicationConfig = {
@@ -20,6 +21,11 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideAppInitializer(() => {
       inject(GlobalStore);
+      inject(SupabaseAuthService)
+        .ensureSession()
+        .catch((error) => {
+          console.error('Failed to establish anonymous session', error);
+        });
     }),
     provideServiceWorker('ngsw-worker.js', {
       enabled: !isDevMode(),
