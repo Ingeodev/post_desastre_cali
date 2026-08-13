@@ -3,6 +3,7 @@ import { provideRouter } from '@angular/router';
 import { signal } from '@angular/core';
 import { App } from './app';
 import { SettingsStore } from './features/settings/ui/stores/settings.store';
+import { GlobalStore } from './shared/stores/global.store';
 
 describe('App', () => {
   beforeEach(async () => {
@@ -11,6 +12,14 @@ describe('App', () => {
       providers: [
         provideRouter([]),
         { provide: SettingsStore, useValue: { isConfigured: signal(false) } },
+        {
+          provide: GlobalStore,
+          useValue: {
+            isSyncing: signal(false),
+            canSync: signal(false),
+            syncNow: (): void => undefined,
+          },
+        },
       ],
     }).compileComponents();
   });

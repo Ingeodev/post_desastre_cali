@@ -3,6 +3,7 @@ import { vi } from 'vitest';
 
 import { StepNotes } from './step-notes';
 import { NewReportStore } from '../../stores/new-report.store';
+import { GlobalStore } from '../../../../../shared/stores/global.store';
 import { SaveReport } from '../../../domain/use-cases/save-report';
 
 describe('StepNotes', () => {
@@ -13,7 +14,10 @@ describe('StepNotes', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [StepNotes],
-      providers: [{ provide: SaveReport, useValue: { execute: vi.fn() } }],
+      providers: [
+        { provide: SaveReport, useValue: { execute: vi.fn() } },
+        { provide: GlobalStore, useValue: { setRegistering: vi.fn() } },
+      ],
     }).compileComponents();
 
     store = TestBed.inject(NewReportStore);

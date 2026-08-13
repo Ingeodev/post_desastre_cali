@@ -1,3 +1,4 @@
+import { Injectable } from '@angular/core';
 import { supabase } from '../../../../core/data/supabase/supabase-client';
 import {
   DamageInspections,
@@ -7,6 +8,7 @@ import { InspectionRepository, InspectionInput } from '../../domain/interfaces/i
 import { InspectionEntity } from '../entities/inspection.entity';
 import { toInspectionEntity, toRemoteInput } from '../../application/mappers/geom.mapper';
 
+@Injectable({ providedIn: 'root' })
 export class SupabaseInspectionRepository implements InspectionRepository {
   async saveLocal(_inspection: InspectionEntity): Promise<void> {
     throw new Error('SupabaseInspectionRepository does not support saveLocal');

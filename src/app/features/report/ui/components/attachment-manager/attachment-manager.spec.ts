@@ -4,6 +4,7 @@ import { vi } from 'vitest';
 import { AttachmentManager } from './attachment-manager';
 import { NewReportStore } from '../../stores/new-report.store';
 import { SaveReport } from '../../../domain/use-cases/save-report';
+import { GlobalStore } from '../../../../../shared/stores/global.store';
 
 describe('AttachmentManager', () => {
   let component: AttachmentManager;
@@ -15,6 +16,7 @@ describe('AttachmentManager', () => {
       providers: [
         NewReportStore,
         { provide: SaveReport, useValue: { execute: vi.fn() } },
+        { provide: GlobalStore, useValue: { setRegistering: vi.fn() } },
       ],
     }).compileComponents();
 

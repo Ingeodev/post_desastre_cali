@@ -1,9 +1,11 @@
+import { Injectable } from '@angular/core';
 import { supabase } from '../../../../core/data/supabase/supabase-client';
 import { InspectionPhotoRepository } from '../../domain/interfaces/inspection-photo.repository';
 import { InspectionPhotoEntity } from '../entities/inspection-photo.entity';
 
-export const PHOTOS_BUCKET = 'inspection_photos';
+export const PHOTOS_BUCKET = 'inspection_images';
 
+@Injectable({ providedIn: 'root' })
 export class SupabaseInspectionPhotoRepository
   implements InspectionPhotoRepository
 {

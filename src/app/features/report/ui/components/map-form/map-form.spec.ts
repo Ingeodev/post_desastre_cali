@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { MapForm } from './map-form';
 import { SaveReport } from '../../../domain/use-cases/save-report';
+import { GlobalStore } from '../../../../../shared/stores/global.store';
 
 vi.mock('@maplibre/ngx-maplibre-gl', async () => {
   const { Component } = await import('@angular/core');
@@ -37,6 +38,7 @@ describe('MapForm', () => {
       imports: [MapForm],
       providers: [
         { provide: SaveReport, useValue: { execute: () => Promise.resolve() } },
+        { provide: GlobalStore, useValue: { setRegistering: (): void => undefined } },
       ],
     }).compileComponents();
 

@@ -2,11 +2,11 @@ import { Component, inject } from '@angular/core';
 import { GlobalStore } from '../../stores/global.store';
 
 @Component({
-  selector: 'app-topbar',
+  selector: 'app-sync-overlay',
   imports: [],
-  templateUrl: './topbar.html',
-  styleUrl: './topbar.css',
+  templateUrl: './sync-overlay.html',
+  styleUrl: './sync-overlay.css',
 })
-export class Topbar {
+export class SyncOverlay {
   readonly globalStore = inject(GlobalStore);
 }

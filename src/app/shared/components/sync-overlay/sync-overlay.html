@@ -1,0 +1,15 @@
+@if (globalStore.isSyncing()) {
+  <div
+    class="fixed inset-0 z-50 flex flex-col items-center justify-center gap-4 bg-zinc-950/70 backdrop-blur-sm"
+    role="status"
+    aria-live="polite"
+  >
+    <span class="pi pi-refresh pi-spin text-5xl text-blue-400" aria-hidden="true"></span>
+    <div class="flex flex-col items-center gap-1 text-center">
+      <span class="text-lg font-semibold text-zinc-50">Sincronizando reportes</span>
+      <span class="text-sm text-zinc-300">
+        No cierres la aplicación hasta finalizar el proceso.
+      </span>
+    </div>
+  </div>
+}

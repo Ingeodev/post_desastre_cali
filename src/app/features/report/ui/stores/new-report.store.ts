@@ -8,8 +8,9 @@ import {
   withState,
 } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
-import { EMPTY, catchError, pipe, switchMap, tap, throwError } from 'rxjs';
+import { EMPTY, catchError, finalize, from, pipe, switchMap, tap, throwError } from 'rxjs';
 import { DamageInspectionsInsert } from '../../../../core/supabase-models/supabase-type-aliases';
+import { GlobalStore } from '../../../../shared/stores/global.store';
 import { resizePhoto, toLocalPhoto } from '../../application/mappers/photo.mapper';
 import { GeoJsonPoint } from '../../data/entities/inspection.entity';
 import { InspectionPhotoEntity } from '../../data/entities/inspection-photo.entity';
@@ -98,6 +99,7 @@ export const NewReportStore = signalStore(
   withState<NewReportState>(createInitialState()),
   withProps(() => ({
     saveReport: inject(SaveReport),
+    globalStore: inject(GlobalStore),
   })),
   withComputed((store) => ({
     report: computed((): NewReportDraft => {
@@ -267,11 +269,20 @@ export const NewReportStore = signalStore(
     save: rxMethod<void>(
       pipe(
         switchMap(() => {
+          store.globalStore.setRegistering(true);
+
+          let entities: ReportEntities;
+
           try {
-            return store.saveReport.execute(store.buildEntities());
+            entities = store.buildEntities();
           } catch (error) {
+            store.globalStore.setRegistering(false);
             return throwError(() => error);
           }
+
+          return from(store.saveReport.execute(entities)).pipe(
+            finalize(() => store.globalStore.setRegistering(false)),
+          );
         }),
         catchError((error) => {
           console.error('Failed to save report', error);

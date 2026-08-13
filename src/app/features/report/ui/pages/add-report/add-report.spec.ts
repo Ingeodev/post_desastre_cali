@@ -16,6 +16,7 @@ import { NewReportStore } from '../../stores/new-report.store';
 import { ReportStore } from '../../stores/report.store';
 import { SaveReport } from '../../../domain/use-cases/save-report';
 import { SettingsStore } from '../../../../settings/ui/stores/settings.store';
+import { GlobalStore } from '../../../../../shared/stores/global.store';
 import { SeismicEventEntity } from '../../../../settings/data/entities/seismic-event.entity';
 
 @Component({
@@ -76,6 +77,7 @@ describe('AddReport', () => {
         },
         { provide: SaveReport, useValue: saveReport },
         { provide: SettingsStore, useValue: settingsStore },
+        { provide: GlobalStore, useValue: { setRegistering: (): void => undefined } },
       ],
     })
       .overrideComponent(AddReport, {

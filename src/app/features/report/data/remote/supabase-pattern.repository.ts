@@ -1,7 +1,9 @@
+import { Injectable } from '@angular/core';
 import { supabase } from '../../../../core/data/supabase/supabase-client';
 import { InspectionPatternRepository } from '../../domain/interfaces/inspection-pattern.repository';
 import { InspectionPatternEntity } from '../entities/inspection-pattern.entity';
 
+@Injectable({ providedIn: 'root' })
 export class SupabaseInspectionPatternRepository
   implements InspectionPatternRepository
 {

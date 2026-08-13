@@ -4,6 +4,7 @@ import { signal } from '@angular/core';
 
 import { DefaultLayout } from './default-layout';
 import { SettingsStore } from '../../../features/settings/ui/stores/settings.store';
+import { GlobalStore } from '../../stores/global.store';
 
 describe('DefaultLayout', () => {
   let component: DefaultLayout;
@@ -15,6 +16,14 @@ describe('DefaultLayout', () => {
       providers: [
         provideRouter([]),
         { provide: SettingsStore, useValue: { isConfigured: signal(false) } },
+        {
+          provide: GlobalStore,
+          useValue: {
+            isSyncing: signal(false),
+            canSync: signal(false),
+            syncNow: (): void => undefined,
+          },
+        },
       ],
     }).compileComponents();
 

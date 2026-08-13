@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { NewReportForm } from './new-report-form';
 import { SaveReport } from '../../../domain/use-cases/save-report';
+import { GlobalStore } from '../../../../../shared/stores/global.store';
 
 describe('NewReportForm', () => {
   let component: NewReportForm;
@@ -12,6 +13,7 @@ describe('NewReportForm', () => {
       imports: [NewReportForm],
       providers: [
         { provide: SaveReport, useValue: { execute: () => Promise.resolve() } },
+        { provide: GlobalStore, useValue: { setRegistering: (): void => undefined } },
       ],
     }).compileComponents();
 
