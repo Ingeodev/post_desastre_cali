@@ -11,6 +11,7 @@ describe('GlobalStore', () => {
   let syncReports: {
     pendingCount: ReturnType<typeof vi.fn>;
     run: ReturnType<typeof vi.fn>;
+    progress: ReturnType<typeof signal<{ synced: number; total: number }>>;
   };
 
   beforeEach(() => {
@@ -18,6 +19,7 @@ describe('GlobalStore', () => {
     syncReports = {
       pendingCount: vi.fn().mockResolvedValue(0),
       run: vi.fn().mockResolvedValue(undefined),
+      progress: signal({ synced: 0, total: 0 }),
     };
 
     TestBed.configureTestingModule({
@@ -39,6 +41,13 @@ describe('GlobalStore', () => {
     expect(store.isOnline()).toBe(false);
   });
 
+  it('should expose the sync progress from the use case', () => {
+    expect(store.syncProgress()).toEqual({ synced: 0, total: 0 });
+
+    syncReports.progress.set({ synced: 1, total: 3 });
+    expect(store.syncProgress()).toEqual({ synced: 1, total: 3 });
+  });
+
   it('should not allow sync when offline, without pending, or while registering', async () => {
     isOnline.set(false);
     expect(store.canSync()).toBe(false);
@@ -52,15 +61,17 @@ describe('GlobalStore', () => {
     expect(store.canSync()).toBe(false);
   });
 
-  it('should auto-trigger sync when online with pending data', async () => {
+  it('should not auto-trigger sync, only allow it manually', async () => {
     syncReports.pendingCount.mockResolvedValue(2);
     await store.refreshPendingCount();
     TestBed.flushEffects();
 
-    await vi.waitFor(() => {
-      expect(store.syncStatus()).toBe('idle');
-    });
-    expect(syncReports.run).toHaveBeenCalled();
+    expect(store.canSync()).toBe(true);
+    expect(syncReports.run).not.toHaveBeenCalled();
+
+    await store.syncNow();
+
+    expect(syncReports.run).toHaveBeenCalledTimes(1);
   });
 
   it('should not auto-trigger sync while a report is being registered', async () => {
@@ -69,9 +80,7 @@ describe('GlobalStore', () => {
     await store.refreshPendingCount();
     TestBed.flushEffects();
 
-    await vi.waitFor(() => {
-      expect(store.syncStatus()).toBe('idle');
-    });
+    expect(store.canSync()).toBe(false);
     expect(syncReports.run).not.toHaveBeenCalled();
   });
 
@@ -97,54 +106,14 @@ describe('GlobalStore', () => {
     expect(store.pendingCount()).toBe(0);
   });
 
-  it('should auto-trigger sync when connectivity returns after a failure', async () => {
-    let runCalls = 0;
-    syncReports.run.mockImplementation(() => {
-      runCalls++;
-      if (runCalls === 1) {
-        return Promise.reject(new Error('network'));
-      }
-      return Promise.resolve(undefined);
-    });
-    syncReports.pendingCount.mockImplementation(async () =>
-      runCalls >= 2 ? 0 : 2,
-    );
+  it('should expose the pending count refresh after registering a report', async () => {
+    syncReports.pendingCount.mockResolvedValueOnce(0).mockResolvedValueOnce(3);
 
     await store.refreshPendingCount();
-    TestBed.flushEffects();
-    await vi.waitFor(() => {
-      expect(store.syncStatus()).toBe('error');
-    });
-    expect(syncReports.run).toHaveBeenCalledTimes(1);
-
-    isOnline.set(false);
-    TestBed.flushEffects();
-
-    isOnline.set(true);
-    TestBed.flushEffects();
-
-    await vi.waitFor(() => {
-      expect(store.syncStatus()).toBe('idle');
-    });
-    expect(syncReports.run).toHaveBeenCalledTimes(2);
-  });
-
-  it('should not re-trigger sync when staying offline', async () => {
-    syncReports.pendingCount.mockResolvedValue(2);
-    syncReports.run.mockRejectedValue(new Error('network'));
+    expect(store.pendingCount()).toBe(0);
 
     await store.refreshPendingCount();
-    TestBed.flushEffects();
-    await vi.waitFor(() => {
-      expect(store.syncStatus()).toBe('error');
-    });
-    expect(syncReports.run).toHaveBeenCalledTimes(1);
-
-    isOnline.set(false);
-    TestBed.flushEffects();
-    TestBed.flushEffects();
-
-    expect(syncReports.run).toHaveBeenCalledTimes(1);
-    expect(store.syncStatus()).toBe('error');
+    expect(store.pendingCount()).toBe(3);
+    expect(store.canSync()).toBe(true);
   });
 });

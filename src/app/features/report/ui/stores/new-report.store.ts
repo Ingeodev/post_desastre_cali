@@ -60,7 +60,10 @@ interface NewReportState {
   occupancy: OccupancyDraft;
   patternIds: number[];
   photos: InspectionPhotoEntity[];
+  saveStatus: SaveStatus;
 }
+
+export type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
 
 function createInitialState(): NewReportState {
   const id = crypto.randomUUID();
@@ -91,6 +94,7 @@ function createInitialState(): NewReportState {
     },
     patternIds: [],
     photos: [],
+    saveStatus: 'idle',
   };
 }
 
@@ -163,6 +167,10 @@ export const NewReportStore = signalStore(
       setCoordinates(coordinates: [number, number]): void {
         const geom: GeoJsonPoint = { type: 'Point', coordinates };
         patchState(store, { inspection: { ...store.inspection(), geom } });
+      },
+
+      clearCoordinates(): void {
+        patchState(store, { inspection: { ...store.inspection(), geom: null } });
       },
 
       updateOccupancy(
@@ -270,6 +278,7 @@ export const NewReportStore = signalStore(
       pipe(
         switchMap(() => {
           store.globalStore.setRegistering(true);
+          patchState(store, { saveStatus: 'saving' });
 
           let entities: ReportEntities;
 
@@ -277,6 +286,7 @@ export const NewReportStore = signalStore(
             entities = store.buildEntities();
           } catch (error) {
             store.globalStore.setRegistering(false);
+            patchState(store, { saveStatus: 'error' });
             return throwError(() => error);
           }
 
@@ -286,9 +296,13 @@ export const NewReportStore = signalStore(
         }),
         catchError((error) => {
           console.error('Failed to save report', error);
+          patchState(store, { saveStatus: 'error' });
           return EMPTY;
         }),
-        tap(() => patchState(store, createInitialState())),
+        tap(() => {
+          patchState(store, { ...createInitialState(), saveStatus: 'saved' });
+          void store.globalStore.refreshPendingCount();
+        }),
       ),
     ),
   })),

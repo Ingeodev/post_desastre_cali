@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { signal } from '@angular/core';
+import { MessageService } from 'primeng/api';
 
 import { DefaultLayout } from './default-layout';
 import { SettingsStore } from '../../../features/settings/ui/stores/settings.store';
@@ -15,6 +16,7 @@ describe('DefaultLayout', () => {
       imports: [DefaultLayout],
       providers: [
         provideRouter([]),
+        MessageService,
         { provide: SettingsStore, useValue: { isConfigured: signal(false) } },
         {
           provide: GlobalStore,

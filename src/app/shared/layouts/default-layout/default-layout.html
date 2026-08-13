@@ -1,5 +1,9 @@
 <main class="h-dvh flex flex-col overflow-hidden">
   <app-topbar />
+  <p-toast
+    position="top-center"
+    [breakpoints]="{ '600px': { width: 'calc(100vw - 1rem)' } }"
+  />
   <div class="relative flex-1 overflow-y-auto">
     <ng-content />
   </div>

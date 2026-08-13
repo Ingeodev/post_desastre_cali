@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject } from '@angular/core';
 import { Router } from '@angular/router';
+import { MessageService } from 'primeng/api';
 import { FormStepper } from '../../../../../shared/components/form-stepper/form-stepper';
 import { Stepp } from '../../../../../shared/components/stepp/stepp';
 import { AttachmentManager } from '../../components/attachment-manager/attachment-manager';
@@ -33,6 +34,7 @@ export class AddReport {
   readonly newReportStore = inject(NewReportStore);
   readonly settingsStore = inject(SettingsStore);
   private readonly router = inject(Router);
+  private readonly messageService = inject(MessageService);
 
   readonly isLocationValid = computed(
     () => this.newReportStore.inspection().geom !== null,
@@ -78,6 +80,25 @@ export class AddReport {
       const dataSources = this.reportStore.dataSources();
       if (!this.newReportStore.inspection().dataSourceId && dataSources.length > 0) {
         this.newReportStore.updateInspection({ dataSourceId: dataSources[0].id });
+      }
+    });
+
+    effect(() => {
+      const status = this.newReportStore.saveStatus();
+
+      if (status === 'saved') {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Reporte guardado',
+          detail: 'El reporte se guardó correctamente y quedará pendiente de sincronizar.',
+        });
+        this.router.navigate(['/reportes']);
+      } else if (status === 'error') {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error al guardar',
+          detail: 'No se pudo guardar el reporte. Intenta nuevamente.',
+        });
       }
     });
   }

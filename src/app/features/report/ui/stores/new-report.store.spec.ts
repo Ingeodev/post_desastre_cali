@@ -8,11 +8,17 @@ import { GlobalStore } from '../../../../shared/stores/global.store';
 describe('NewReportStore', () => {
   let store: InstanceType<typeof NewReportStore>;
   let saveReport: { execute: ReturnType<typeof vi.fn> };
-  let globalStore: { setRegistering: ReturnType<typeof vi.fn> };
+  let globalStore: {
+    setRegistering: ReturnType<typeof vi.fn>;
+    refreshPendingCount: ReturnType<typeof vi.fn>;
+  };
 
   beforeEach(() => {
     saveReport = { execute: vi.fn() };
-    globalStore = { setRegistering: vi.fn() };
+    globalStore = {
+      setRegistering: vi.fn(),
+      refreshPendingCount: vi.fn().mockResolvedValue(undefined),
+    };
 
     TestBed.configureTestingModule({
       providers: [
@@ -49,6 +55,15 @@ describe('NewReportStore', () => {
 
     expect(inspection.createdAt).toBe(store.inspection().createdAt);
     expect(inspection.capturedAt).toBe(store.inspection().capturedAt);
+  });
+
+  it('should clear the coordinates from the draft', () => {
+    store.setCoordinates([-76.5, 3.45]);
+    expect(store.report().geom).not.toBeNull();
+
+    store.clearCoordinates();
+
+    expect(store.report().geom).toBeNull();
   });
 
   it('should save the built entities and reset the draft on success', async () => {
@@ -121,5 +136,39 @@ describe('NewReportStore', () => {
       expect(saveReport.execute).toHaveBeenCalledTimes(1);
     });
     expect(store.inspection().geom).not.toBeNull();
+  });
+
+  it('should mark the save as saved and refresh the pending count on success', async () => {
+    saveReport.execute.mockResolvedValue(undefined);
+
+    store.setCoordinates([-76.5, 3.45]);
+    store.updateInspection({
+      damageCategoryId: 2,
+      dataSourceId: 1,
+      seismicEventId: 'evt-1',
+    });
+    store.save();
+
+    await vi.waitFor(() => {
+      expect(globalStore.refreshPendingCount).toHaveBeenCalled();
+    });
+    expect(store.saveStatus()).toBe('saved');
+  });
+
+  it('should mark the save as error when saving fails', async () => {
+    saveReport.execute.mockRejectedValue(new Error('boom'));
+
+    store.setCoordinates([-76.5, 3.45]);
+    store.updateInspection({
+      damageCategoryId: 2,
+      dataSourceId: 1,
+      seismicEventId: 'evt-1',
+    });
+    store.save();
+
+    await vi.waitFor(() => {
+      expect(saveReport.execute).toHaveBeenCalledTimes(1);
+    });
+    expect(store.saveStatus()).toBe('error');
   });
 });

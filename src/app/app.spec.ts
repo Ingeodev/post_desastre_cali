@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { signal } from '@angular/core';
+import { MessageService } from 'primeng/api';
 import { App } from './app';
 import { SettingsStore } from './features/settings/ui/stores/settings.store';
 import { GlobalStore } from './shared/stores/global.store';
@@ -11,6 +12,7 @@ describe('App', () => {
       imports: [App],
       providers: [
         provideRouter([]),
+        MessageService,
         { provide: SettingsStore, useValue: { isConfigured: signal(false) } },
         {
           provide: GlobalStore,

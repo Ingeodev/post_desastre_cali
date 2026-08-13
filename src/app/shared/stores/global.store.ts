@@ -1,4 +1,4 @@
-import { computed, effect, inject } from '@angular/core';
+import { computed, inject } from '@angular/core';
 import {
   patchState,
   signalStore,
@@ -35,6 +35,7 @@ export const GlobalStore = signalStore(
   withComputed((store) => ({
     isOnline: computed(() => store.connectivity.isOnline()),
     isSyncing: computed(() => store.syncStatus() === 'syncing'),
+    syncProgress: computed(() => store.syncReports.progress()),
     canSync: computed(
       () =>
         store.connectivity.isOnline() &&
@@ -77,35 +78,6 @@ export const GlobalStore = signalStore(
       store.connectivity.start();
 
       void store.refreshPendingCount();
-
-      effect(() => {
-        const shouldSync =
-          store.isOnline() &&
-          store.pendingCount() > 0 &&
-          !store.isRegistering() &&
-          store.syncStatus() === 'idle';
-
-        if (shouldSync) {
-          void store.syncNow();
-        }
-      });
-
-      let wasOnline = store.isOnline();
-
-      effect(() => {
-        const online = store.isOnline();
-        const cameBackOnline = online && !wasOnline;
-        wasOnline = online;
-
-        if (
-          cameBackOnline &&
-          store.pendingCount() > 0 &&
-          !store.isRegistering() &&
-          !store.isSyncing()
-        ) {
-          void store.syncNow();
-        }
-      });
     },
   })),
 );

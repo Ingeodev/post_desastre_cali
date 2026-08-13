@@ -4,13 +4,12 @@ import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
-import { ToastModule } from 'primeng/toast';
 import { SeismicEvents } from '../../../../../core/supabase-models/supabase-type-aliases';
 import { SettingsStore } from '../../stores/settings.store';
 
 @Component({
   selector: 'app-settings',
-  imports: [ReactiveFormsModule, InputTextModule, SelectModule, ButtonModule, ToastModule],
+  imports: [ReactiveFormsModule, InputTextModule, SelectModule, ButtonModule],
   templateUrl: './settings.html',
   styleUrl: './settings.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -130,6 +130,25 @@ describe('SyncReportsUseCase', () => {
     expect(localRepository.delete).toHaveBeenCalledWith('inspection-1');
   });
 
+  it('should track sync progress across pending reports', async () => {
+    const first = buildReport();
+    const second = buildReport({
+      inspection: {
+        ...buildReport().inspection,
+        id: 'inspection-2',
+        deviceLocalId: 'device-2',
+      },
+    });
+
+    localRepository.getAll.mockResolvedValue([first, second]);
+
+    expect(useCase.progress()).toEqual({ synced: 0, total: 0 });
+
+    await useCase.run();
+
+    expect(useCase.progress()).toEqual({ synced: 2, total: 2 });
+  });
+
   it('should skip already synced inspections', async () => {
     const synced = buildReport();
     synced.inspection.syncedAt = '2026-08-10T13:00:00.000Z';

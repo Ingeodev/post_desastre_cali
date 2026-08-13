@@ -73,5 +73,10 @@ export class MapForm {
     this.store.changeStatus('captured')
   }
 
+  recapture() {
+    this.newReportStore.clearCoordinates()
+    this.store.reset()
+  }
+
 
 }

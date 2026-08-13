@@ -99,6 +99,11 @@ export const MapStore = signalStore(
         patchState(store, {
           status: status
         })
+      },
+
+      reset() {
+        centeredOnUser = false;
+        patchState(store, { ...initialState });
       }
     };
   }),

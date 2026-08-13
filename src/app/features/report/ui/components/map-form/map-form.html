@@ -24,6 +24,15 @@
       }
 
       }
+
+      @if (store.status() === 'captured') {
+      <p-button class=" pointer-events-auto" label="Volver a capturar" severity="secondary" size="small" rounded
+        raised (click)="recapture()">
+        <ng-template #icon>
+          <ng-icon name="hugePinLocation03" />
+        </ng-template>
+      </p-button>
+      }
     </div>
     <div class="flex flex-col gap-4">
       @if (store.mode() === 'capturing' && store.status() !== 'captured') {

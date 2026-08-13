@@ -1,6 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
+import { MessageService } from 'primeng/api';
 import { vi } from 'vitest';
 import {
   ConstructionTypes,
@@ -54,6 +55,7 @@ describe('AddReport', () => {
   let component: AddReport;
   let fixture: ComponentFixture<AddReport>;
   let store: InstanceType<typeof NewReportStore>;
+  let messageService: { add: ReturnType<typeof vi.fn> };
   const saveReport = { execute: vi.fn().mockResolvedValue(undefined) };
   const settingsStore = {
     email: signal<string | null>(null),
@@ -61,10 +63,13 @@ describe('AddReport', () => {
   };
 
   beforeEach(async () => {
+    messageService = { add: vi.fn() };
+
     await TestBed.configureTestingModule({
       imports: [AddReport],
       providers: [
         provideRouter([]),
+        { provide: MessageService, useValue: messageService },
         {
           provide: ReportStore,
           useValue: {
@@ -77,7 +82,13 @@ describe('AddReport', () => {
         },
         { provide: SaveReport, useValue: saveReport },
         { provide: SettingsStore, useValue: settingsStore },
-        { provide: GlobalStore, useValue: { setRegistering: (): void => undefined } },
+        {
+          provide: GlobalStore,
+          useValue: {
+            setRegistering: (): void => undefined,
+            refreshPendingCount: (): Promise<void> => Promise.resolve(),
+          },
+        },
       ],
     })
       .overrideComponent(AddReport, {
@@ -219,5 +230,40 @@ describe('AddReport', () => {
       expect(saveReport.execute).toHaveBeenCalledTimes(1);
     });
     expect(store.inspection().geom).toBeNull();
+  });
+
+  it('should show a success toast and navigate to the report list after saving', async () => {
+    const router = TestBed.inject(Router);
+    const navigateSpy = vi.spyOn(router, 'navigate');
+
+    store.setCoordinates([-76.5, 3.45]);
+    store.updateInspection({
+      constructionTypeId: 3,
+      damageCategoryId: 2,
+      dataSourceId: 1,
+      seismicEventId: 'evt-1',
+    });
+    store.updateOccupancy({
+      isCurrentlyOccupied: true,
+      hasTrappedPeople: false,
+      estimatedResidents: 2,
+    });
+    store.addPhotoEntity(fakePhoto());
+    fixture.detectChanges();
+
+    for (let step = 0; step < 5; step++) {
+      getButton(fixture, 'Siguiente').click();
+      fixture.detectChanges();
+    }
+
+    getButton(fixture, 'Enviar').click();
+    fixture.detectChanges();
+
+    await vi.waitFor(() => {
+      expect(navigateSpy).toHaveBeenCalledWith(['/reportes']);
+    });
+    expect(messageService.add).toHaveBeenCalledWith(
+      expect.objectContaining({ severity: 'success' }),
+    );
   });
 });
