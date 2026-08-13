@@ -22,6 +22,10 @@
     </a>
     <a
       routerLink="nuevo-reporte"
+      [class.pointer-events-none]="!isReportEnabled()"
+      [class.opacity-40]="!isReportEnabled()"
+      [attr.aria-disabled]="!isReportEnabled()"
+      (click)="onNewReportClick($event)"
       routerLinkActive="text-blue-600 dark:text-blue-400"
       class="flex flex-col items-center gap-1 px-3 py-1 text-xs transition-colors"
       aria-label="Nuevo reporte"

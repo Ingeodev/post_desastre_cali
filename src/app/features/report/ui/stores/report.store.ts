@@ -18,7 +18,7 @@ import { Report } from '../../domain/models/report.model';
 import { GetConstructionTypes } from '../../domain/use-cases/get-construction-types';
 import { GetDamageCategories } from '../../domain/use-cases/get-damage-categories';
 import { GetDataSources } from '../../domain/use-cases/get-data-sources';
-import { GetSeismicEvents } from '../../domain/use-cases/get-seismic-events';
+import { GetSeismicEvents } from '../../../../shared/use-cases/get-seismic-events';
 import { GetDamageCatalog } from '../../domain/use-cases/get-damage-catalog';
 import { DamagePatterns } from '../../../../core/supabase-models/supabase-type-aliases';
 

@@ -1,1 +1,47 @@
-<p>settings works!</p>
+<div class="flex flex-col gap-6 p-6">
+  <p-toast
+    position="top-center"
+    [breakpoints]="{ '600px': { width: 'calc(100vw - 1rem)' } }"
+  />
+
+  <header class="flex flex-col gap-1">
+    <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
+      Configuración
+    </h2>
+    <p class="text-sm text-zinc-500 dark:text-zinc-400">
+      Correo al que se asociarán los reportes y evento sísmico al que pertenecen.
+    </p>
+  </header>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col gap-5">
+    <div class="flex flex-col gap-1">
+      <label for="email" class="text-sm font-medium">Correo electrónico</label>
+      <input
+        id="email"
+        formControlName="email"
+        type="email"
+        pInputText
+        class="w-full"
+      />
+    </div>
+
+    <div class="flex flex-col gap-1">
+      <label for="eventId" class="text-sm font-medium">Evento sísmico</label>
+      <p-select
+        id="eventId"
+        formControlName="eventId"
+        [options]="eventOptions"
+        optionLabel="name"
+        optionValue="id"
+        placeholder="Selecciona evento"
+        class="w-full"
+      />
+    </div>
+
+    <p-button
+      type="submit"
+      label="Guardar"
+      [disabled]="form.invalid || saving()"
+    />
+  </form>
+</div>

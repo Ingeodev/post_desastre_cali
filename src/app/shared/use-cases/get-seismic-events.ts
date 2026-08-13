@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
-import { SeismicEvents } from '../../../../core/supabase-models/supabase-type-aliases';
+import { SeismicEvents } from '../../core/supabase-models/supabase-type-aliases';
 
 const DATA: SeismicEvents[] = [{
   id: 'bda05606-8c1e-43e7-b13e-bdf828a9bd42',

@@ -1,5 +1,6 @@
 import { ApplicationConfig, provideBrowserGlobalErrorListeners, isDevMode } from '@angular/core';
 import { provideRouter } from '@angular/router';
+import { MessageService } from 'primeng/api';
 
 import { provideMaplibreWorker } from '@maplibre/ngx-maplibre-gl/config';
 
@@ -8,9 +9,12 @@ import { provideServiceWorker } from '@angular/service-worker';
 import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeuix/themes/aura';
 import { IngeodevPreset } from '../ingeodev.theme';
+import { IndexDb } from './core/data/local/db';
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    MessageService,
+    { provide: IndexDb, useClass: IndexDb },
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
     provideServiceWorker('ngsw-worker.js', {
