@@ -15,6 +15,8 @@ import { MapForm } from '../../components/map-form/map-form';
 import { NewReportStore } from '../../stores/new-report.store';
 import { ReportStore } from '../../stores/report.store';
 import { SaveReport } from '../../../domain/use-cases/save-report';
+import { SettingsStore } from '../../../../settings/ui/stores/settings.store';
+import { SeismicEventEntity } from '../../../../settings/data/entities/seismic-event.entity';
 
 @Component({
   selector: 'app-map-form',
@@ -52,6 +54,10 @@ describe('AddReport', () => {
   let fixture: ComponentFixture<AddReport>;
   let store: InstanceType<typeof NewReportStore>;
   const saveReport = { execute: vi.fn().mockResolvedValue(undefined) };
+  const settingsStore = {
+    email: signal<string | null>(null),
+    event: signal<SeismicEventEntity | null>(null),
+  };
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -69,6 +75,7 @@ describe('AddReport', () => {
           },
         },
         { provide: SaveReport, useValue: saveReport },
+        { provide: SettingsStore, useValue: settingsStore },
       ],
     })
       .overrideComponent(AddReport, {
@@ -159,6 +166,24 @@ describe('AddReport', () => {
     fixture.detectChanges();
 
     expect(getButton(fixture, 'Siguiente').disabled).toBe(false);
+  });
+
+  it('should autofill reportedBy and seismicEventId from the settings store', () => {
+    settingsStore.email.set('user@example.com');
+    settingsStore.event.set({
+      id: 'evt-settings',
+      event_datetime: '2026-08-10 12:34:28+00',
+      magnitude: 7.4,
+      depth_km: 110.3,
+      epicenter: 'xyz',
+      source: 'USGS',
+      created_at: '2026-08-10T12:34:28Z',
+      name: 'Sismo settings',
+    });
+    fixture.detectChanges();
+
+    expect(store.inspection().reportedBy).toBe('user@example.com');
+    expect(store.inspection().seismicEventId).toBe('evt-settings');
   });
 
   it('should label the last step button as Enviar and save the report on finish', async () => {

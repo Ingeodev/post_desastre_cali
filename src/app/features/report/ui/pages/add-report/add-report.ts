@@ -10,6 +10,7 @@ import { StepOccupancy } from '../../components/step-occupancy/step-occupancy';
 import { StepNotes } from '../../components/step-notes/step-notes';
 import { NewReportStore } from '../../stores/new-report.store';
 import { ReportStore } from '../../stores/report.store';
+import { SettingsStore } from '../../../../settings/ui/stores/settings.store';
 
 @Component({
   selector: 'app-add-report',
@@ -30,6 +31,7 @@ import { ReportStore } from '../../stores/report.store';
 export class AddReport {
   readonly reportStore = inject(ReportStore);
   readonly newReportStore = inject(NewReportStore);
+  readonly settingsStore = inject(SettingsStore);
   private readonly router = inject(Router);
 
   readonly isLocationValid = computed(
@@ -59,9 +61,16 @@ export class AddReport {
     this.newReportStore.resetDraft();
 
     effect(() => {
-      const event = this.reportStore.currentSeismicEvent();
+      const event = this.settingsStore.event();
       if (event && !this.newReportStore.inspection().seismicEventId) {
         this.newReportStore.updateInspection({ seismicEventId: event.id });
+      }
+    });
+
+    effect(() => {
+      const email = this.settingsStore.email();
+      if (email && !this.newReportStore.inspection().reportedBy) {
+        this.newReportStore.updateInspection({ reportedBy: email });
       }
     });
 
